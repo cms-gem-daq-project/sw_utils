@@ -1,9 +1,22 @@
-#!/bin/zsh
-invoked=$_
-OPTIND=1
+# Detect when we're not being sourced, print a hint and exit
+# Based on https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced#34642589
+if ! $(return >/dev/null 2>&1);
+then
+    echo >&2 "ERROR: You must use \"source $0\" to run this script."
+    exit 1
+fi
 
-helpstring="Usage: $0 [options] -p </path/to/venv/location>
+if [[ ! "$0" =~ ("bash") ]];
+then
+    # Not sourced from Bash
+    BASH_SOURCE="$0"
+    # For zsh (http://zsh.sourceforge.net/FAQ/zshfaq03.html#l18)
+    setopt shwordsplit || true
+fi
+
+helpstring="Usage: source $BASH_SOURCE [options]
     Options:
+        -p Path to the venv location
         -c cmsgemos release version (e.g. X.Y.Z)
         -d debug information is printed
         -g gemplotting release version (e.g. X.Y.Z)
@@ -19,12 +32,14 @@ CMSGEMOS_VERSION=""
 DEBUG=""
 GEMPLOT_VERSION=""
 GEMPLOT_DEV_VERSION=""
+PROXY_PORT=""
 VFATQC_VERSION=""
 VFATQC_DEV_VERSION=""
 VENV_ROOT=""
 WIPE=""
 
-while getopts "c:g:G:v:V:p:wh" opts
+OPTIND=1
+while getopts "c:g:G:v:V:p:P:whd" opts
 do
     case $opts in
         c)
@@ -43,17 +58,20 @@ do
             VENV_ROOT="$OPTARG";;
         w)
             WIPE=1;;
+        P)
+            PROXY_PORT="$OPTARG";;
         h)
-            echo >&2 ${helpstring}
+            echo >&2 "${helpstring}"
             return 1;;
         \?)
-            echo >&2 ${helpstring}
+            echo >&2 "${helpstring}"
             return 1;;
         [?])
-            echo >&2 ${helpstring}
+            echo >&2 "${helpstring}"
             return 1;;
     esac
 done
+unset OPTIND
 
 # Check if user provided the venv argument
 if [ -n "$DEBUG" ]
@@ -62,6 +80,7 @@ then
     echo CMSGEMOS_VERSION $CMSGEMOS_VERSION
     echo GEMPLOT_VERSION $GEMPLOT_VERSION
     echo GEMPLOT_DEV_VERSION $GEMPLOT_DEV_VERSION
+    echo PROXY_PORT $PROXY_PORT
     echo VFATQC_VERSION $VFATQC_VERSION
     echo VFATQC_DEV_VERSION $VFATQC_DEV_VERSION
     echo WIPE $WIPE
@@ -69,9 +88,8 @@ fi
 
 if [ ! -n "$VENV_ROOT" ]
 then
-    echo "you must provide the -p argument"
-    echo >&2 ${helpstring}
-    return 1
+    # Sane default
+    VENV_ROOT=$PWD/venv
 fi
 
 #export ELOG_PATH=/<your>/<elog>/<directory>
@@ -84,13 +102,24 @@ fi
 
 # setup LCG view ?
 ####################
+DNS_INFO="$(dnsdomainname)"
 SYSTEM_INFO="$(uname -a)"
 KERNEL_VERSION="$(uname -r)"
+VIRTUALENV=virtualenv
+PIP=pip
+WGET=wget
 if [[ $KERNEL_VERSION == *"2.6."* ]];
 then
     if [[ $SYSTEM_INFO == *"lxplus"* ]];
     then
         source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-slc6-gcc7-opt/setup.sh
+        # LCG 93 doesn't provide `virtualenv' in PATH
+        VIRTUALENV="python -m virtualenv"
+        PIP="python -m pip"
+    elif [[ "$DNS_INFO" == "cms" ]];
+    then
+        # We are in the .cms network
+        WGET="ssh cmsusr wget"
     fi
     OS_VERSION="slc6"
 elif [[ $KERNEL_VERSION == *"3.10."* ]];
@@ -98,12 +127,35 @@ then
     if [[ $SYSTEM_INFO == *"lxplus"* ]];
     then
         source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-centos7-gcc7-opt/setup.sh
+        # LCG 93 doesn't provide `virtualenv' in PATH
+        VIRTUALENV="python -m virtualenv"
+        PIP="python -m pip"
+    elif [[ "$DNS_INFO" == "cms" ]];
+    then
+        # We are in the .cms network
+        WGET="ssh cmsusr wget"
     fi
     OS_VERSION="cc7"
 else
   echo "operating system not recognized"
   echo "env is not set"
   return 1
+fi
+
+# Setup proxy
+####################
+
+if [ ! -z "$PROXY_PORT" ];
+then
+    # Install PySocks if it's not alread there
+    if ! $PIP --disable-pip-version-check show -q PySocks >/dev/null ; then
+        echo "Installing PySocks..."
+        ssh cmsusr wget https://files.pythonhosted.org/packages/53/12/6bf1d764f128636cef7408e8156b7235b150ea31650d0260969215bb8e7d/PySocks-1.6.8.tar.gz
+        $PIP --disable-pip-version-check install --user PySocks-1.6.8.tar.gz
+    fi
+
+    PIP="$PIP --proxy socks5://localhost:$PROXY_PORT"
+    VIRTUALENV="$VIRTUALENV --never-download" # virtualenv doesn't have proxy support
 fi
 
 # setup virtualenv
@@ -116,12 +168,20 @@ then
     echo SYSTEM_INFO $SYSTEM_INFO
     echo KERNEL_VERSION $KERNEL_VERSION
     echo OS_VERSION $OS_VERSION
+    echo PIP $PIP
     echo PYTHON_VERSION $PYTHON_VERSION
     echo VENV_DIR $VENV_DIR
+    echo VIRTUALENV $VIRTUALENV
+    echo WGET $WGET
+fi
+
+# Install virtualenv if it's not already there
+if ! $PIP show -q virtualenv >/dev/null ; then
+    $PIP install --user virtualenv
 fi
 
 # Check if user wants to start from scratch
-if [[ $WIPE == "1" ]];
+if [[ "$WIPE" == "1" ]];
 then 
     /bin/rm -rf $VENV_DIR
 
@@ -146,21 +206,40 @@ then
     # Make virtualenv
     ####################
     mkdir -p $VENV_DIR
-    python -m virtualenv -p python --system-site-packages $VENV_DIR
+    echo $VIRTUALENV -p python --system-site-packages $VENV_DIR
+    $VIRTUALENV -p python --system-site-packages $VENV_DIR
     . $VENV_DIR/bin/activate
-    python -m pip install -U importlib setuptools pip
-   
+
+    # Check virtualenv
+    ####################
+    if [ -z ${VIRTUAL_ENV+x} ] ; then
+        echo "ERROR: Could not activate virtualenv"
+        return
+    fi
+
+    # Install deps
+    ####################
+    echo $PIP install -U importlib 'setuptools>25,<=38' 'pip>8,<10'
+    $PIP install -U importlib 'setuptools>25,<=38' 'pip>8,<10'
+
     # install cmsgemos?
     ####################
     if [ ! -z ${CMSGEMOS_VERSION} ]
     then
         if [ ! -e cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz ]
         then
-            echo cp /afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
-            cp /afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
+            if [ ! -z "$PROXY_PORT" ];
+            then
+                echo scp lxplus.cern.ch:/afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
+                scp lxplus.cern.ch:/afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
+            else
+                echo cp /afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
+                cp /afs/cern.ch/user/s/sturdy/public/cmsgemos_gempython-${CMSGEMOS_VERSION}.tar.gz .
+            fi
         fi
-        echo python -m pip install cmsgemos_gempython-0.3.1.tar.gz --no-deps
-        python -m pip install cmsgemos_gempython-0.3.1.tar.gz --no-deps
+        ls >/dev/null # Forces a filesystem sync
+        echo $PIP install cmsgemos_gempython-0.3.1.tar.gz --no-deps
+        $PIP install cmsgemos_gempython-0.3.1.tar.gz --no-deps
     fi
     
     # install gemplotting?
@@ -171,15 +250,16 @@ then
         then
             if [ -z "$GEMPLOT_DEV_VERSION" ]
             then
-                echo wget https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
-                wget https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
             else
-                echo wget https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
-                wget https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
             fi
         fi
-        echo python -m pip install gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
-        python -m pip install gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+        ls >/dev/null # Forces a filesystem sync
+        echo $PIP install gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+        $PIP install gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
     fi
 
     # install vfatqc?
@@ -190,15 +270,16 @@ then
         then
             if [ -z "$VFATQC_DEV_VERSION" ]
             then
-                echo wget https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
-                wget https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+                $WGET https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
             else
-                echo wget https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}-dev${VFATQC_DEV_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
-                wget https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}-dev${VFATQC_DEV_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}-dev${VFATQC_DEV_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+                $WGET https://github.com/cms-gem-daq-project/vfatqc-python-scripts/releases/download/v${VFATQC_VERSION}-dev${VFATQC_DEV_VERSION}/gempython_vfatqc-${VFATQC_VERSION}.tar.gz
             fi
         fi
-    echo python -m pip install gempython_vfatqc-${VFATQC_VERSION}.tar.gz
-    python -m pip install gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+        ls >/dev/null # Forces a filesystem sync
+        echo $PIP install gempython_vfatqc-${VFATQC_VERSION}.tar.gz
+        $PIP install gempython_vfatqc-${VFATQC_VERSION}.tar.gz
     fi
 else
     echo source $VENV_DIR/bin/activate
@@ -207,33 +288,36 @@ fi
 
 # Setup locations
 ####################
-if [[ $SYSTEM_INFO == *"lxplus"* ]];
+if [[ -z $DATA_PATH ]]; # Don't override existing value
 then
-    export DATA_PATH=/afs/cern.ch/work/$USER[0,1]/$USER/CMS_GEM/Data/gemdata
-elif [[ $SYSTEM_INFO == *"gem904"* ]];
-then
-    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
-    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
-    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
-    export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
+    if [[ $SYSTEM_INFO == *"lxplus"* ]];
+    then
+        export DATA_PATH=/afs/cern.ch/work/${USER:0:1}/$USER/CMS_GEM/Data/gemdata
+    elif [[ $SYSTEM_INFO == *"gem904"* ]];
+    then
+        export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
+        export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+        export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
+        export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
 
-    # Firmware
-    export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
+        # Firmware
+        export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
 
-    # AMC13 Tool
-    alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
-    alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
+        # AMC13 Tool
+        alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
+        alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
 
-    # xDAQ
-    alias xdaq=/opt/xdaq/bin/xdaq.exe
+        # xDAQ
+        alias xdaq=/opt/xdaq/bin/xdaq.exe
 
-    # Misc
-    #alias arp-scan='sudo /usr/sbin/arp-scan'
-    alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
-elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
-then
-    export DATA_PATH=/gemdata
-    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+        # Misc
+        #alias arp-scan='sudo /usr/sbin/arp-scan'
+        alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
+    elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
+    then
+        export DATA_PATH=/gemdata
+        export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    fi
 fi
 
 # Setup path
@@ -241,7 +325,21 @@ export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/scripts:
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/macros:$PATH
 
 # Create mapping files
-if [ ! -f $VENV_DIR/lib/python2.7/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]
+if [ ! -f $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]
 then
     find $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython -type f -name buildMapFiles.py -exec python {} \;
+fi
+
+if [ ! -d "$DATA_PATH" ];
+then
+    echo "WARNING: The directory \"$DATA_PATH\" (\$DATA_PATH) doesn't exist."
+    echo "         Fix your \$DATA_PATH using export DATA_PATH=..."
+fi
+
+# Clean up
+unset DEBUG DNS_INFO helpstring PIP VIRTUALENV WIPE
+if [[ ! "$0" =~ ("bash") ]];
+then
+    # Not sourced from Bash
+    unset BASH_SOURCE
 fi
