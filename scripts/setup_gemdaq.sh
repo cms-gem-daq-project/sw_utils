@@ -288,36 +288,44 @@ fi
 
 # Setup locations
 ####################
-if [[ -z $DATA_PATH ]]; # Don't override existing value
+if [[ $SYSTEM_INFO == *"lxplus"* ]];
 then
-    if [[ $SYSTEM_INFO == *"lxplus"* ]];
+    if [[ -z "$DATA_PATH" ]]; # Don't override existing value
     then
         export DATA_PATH=/afs/cern.ch/work/${USER:0:1}/$USER/CMS_GEM/Data/gemdata
-    elif [[ $SYSTEM_INFO == *"gem904"* ]];
-    then
-        export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
-        export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
-        export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
-        export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
-
-        # Firmware
-        export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
-
-        # AMC13 Tool
-        alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
-        alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
-
-        # xDAQ
-        alias xdaq=/opt/xdaq/bin/xdaq.exe
-
-        # Misc
-        #alias arp-scan='sudo /usr/sbin/arp-scan'
-        alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
-    elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
-    then
-        export DATA_PATH=/gemdata
-        export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    else
+        # Make sure it's exported
+        export DATA_PATH
     fi
+    if [ ! -d "$DATA_PATH" ];
+    then
+        echo "WARNING: The directory \"$DATA_PATH\" (\$DATA_PATH) doesn't exist."
+        echo "         Fix your \$DATA_PATH using export DATA_PATH=..."
+    fi
+elif [[ $SYSTEM_INFO == *"gem904"* ]];
+then
+    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
+    export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
+
+    # Firmware
+    export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
+
+    # AMC13 Tool
+    alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
+    alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
+
+    # xDAQ
+    alias xdaq=/opt/xdaq/bin/xdaq.exe
+
+    # Misc
+    #alias arp-scan='sudo /usr/sbin/arp-scan'
+    alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
+elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
+then
+    export DATA_PATH=/gemdata
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
 fi
 
 # Setup path
@@ -328,12 +336,6 @@ export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplott
 if [ ! -f $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]
 then
     find $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython -type f -name buildMapFiles.py -exec python {} \;
-fi
-
-if [ ! -d "$DATA_PATH" ];
-then
-    echo "WARNING: The directory \"$DATA_PATH\" (\$DATA_PATH) doesn't exist."
-    echo "         Fix your \$DATA_PATH using export DATA_PATH=..."
 fi
 
 # Clean up
