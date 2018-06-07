@@ -101,47 +101,48 @@ then
     return 1
 fi
 
-# setup LCG view ?
+# Detect operating system
 ####################
-DNS_INFO="$(dnsdomainname)"
-SYSTEM_INFO="$(uname -a)"
+
 KERNEL_VERSION="$(uname -r)"
-VIRTUALENV=virtualenv
-PIP=pip
-WGET=wget
 if [[ $KERNEL_VERSION == *"2.6."* ]];
 then
-    if [[ $SYSTEM_INFO == *"lxplus"* ]];
-    then
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-slc6-gcc7-opt/setup.sh
-        # LCG 93 doesn't provide `virtualenv' in PATH
-        VIRTUALENV="python -m virtualenv"
-        PIP="python -m pip"
-    elif [[ "$DNS_INFO" == "cms" ]];
-    then
-        # We are in the .cms network
-        WGET="ssh cmsusr wget"
-    fi
     OS_VERSION="slc6"
 elif [[ $KERNEL_VERSION == *"3.10."* ]];
 then
-    if [[ $SYSTEM_INFO == *"lxplus"* ]];
-    then
-        source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-centos7-gcc7-opt/setup.sh
-        # LCG 93 doesn't provide `virtualenv' in PATH
-        VIRTUALENV="python -m virtualenv"
-        PIP="python -m pip"
-    elif [[ "$DNS_INFO" == "cms" ]];
-    then
-        # We are in the .cms network
-        WGET="ssh cmsusr wget"
-    fi
     OS_VERSION="cc7"
 else
-  echo "operating system not recognized"
-  echo "env is not set"
-  return 1
+    echo "Unrecognized kernel version! Exiting..."
+    return 1
 fi
+
+# Detect host
+####################
+
+DNS_INFO="$(dnsdomainname)"
+SYSTEM_INFO="$(uname -a)"
+VIRTUALENV=virtualenv
+PIP=pip
+WGET=wget
+
+if [[ $SYSTEM_INFO == *"lxplus"* ]];
+then
+    # LCG 93 doesn't provide `virtualenv' in PATH
+    VIRTUALENV="python -m virtualenv"
+    PIP="python -m pip"
+    if [[ "$OS_VERSION" == "slc6" ]];
+    then
+        source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-slc6-gcc7-opt/setup.sh
+    else
+        # cc7
+        source /cvmfs/sft.cern.ch/lcg/views/LCG_93/x86_64-centos7-gcc7-opt/setup.sh
+    fi
+elif [[ "$DNS_INFO" == "cms" ]];
+then
+    # We are in the .cms network
+    WGET="ssh cmsusr wget"
+fi
+
 
 # Setup proxy
 ####################
