@@ -16,16 +16,16 @@ fi
 
 helpstring="Usage: source $BASH_SOURCE [options]
     Options:
-        -p Path to the venv location
         -c cmsgemos release version (e.g. X.Y.Z)
         -d debug information is printed
         -g gemplotting release version (e.g. X.Y.Z)
         -G gemplotting dev version (e.g. single integer)
         -h displays this string
+        -p Path to the venv location
+        -P When at P5, port of a SOCKS proxy to be used by pip
         -v vfatqc release version (e.g. X.Y.Z)
         -V vfatqc dev version (e.g. single integer)
         -w No value following, deletes and recreates the venv from scratch
-        -P When at P5, port of a SOCKS proxy to be used by pip
 
     The virtualenv found at -p will either be activated or created"
 
