@@ -299,8 +299,9 @@ then
     fi
     if [ ! -d "$DATA_PATH" ];
     then
-        echo "WARNING: The directory \"$DATA_PATH\" (\$DATA_PATH) doesn't exist."
-        echo "         Fix your \$DATA_PATH using export DATA_PATH=..."
+        mkdir -p "$DATA_PATH"
+        echo "INFO: The directory \"$DATA_PATH\" (\$DATA_PATH) didn't exist."
+        echo "      I created it for you."
     fi
 elif [[ $SYSTEM_INFO == *"gem904"* ]];
 then
