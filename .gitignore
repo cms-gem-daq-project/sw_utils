@@ -23,8 +23,8 @@
 !requirements.txt
 
 # Don't ignore select scripts
-scripts/makeNewConfig.sh
-scripts/setup_gemdaq.sh
+!scripts/makeNewConfig.sh
+!scripts/setup_gemdaq.sh
 
 # Don't ignore build config directory
 !config
