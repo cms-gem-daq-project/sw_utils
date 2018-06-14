@@ -3,7 +3,22 @@
 if ! $(return >/dev/null 2>&1);
 then
     echo >&2 "ERROR: You must use \"source $0\" to run this script."
-    exit 1
+
+    # Unfortunately the detection isn't reliable. Try to get more information
+    echo >&2
+    echo >&2 "If you used \"source $0\", please add a comment here:"
+    echo >&2 "    https://github.com/cms-gem-daq-project/sw_utils/issues/3"
+    echo >&2 "I generated some debugging information for you in $PWD/setup_gemdaq.debug"
+    echo >&2 "Please add it to your comment."
+
+    echo "ENV:\n" >$PWD/setup_gemdaq.debug
+    env >>$PWD/setup_gemdaq.debug
+    echo "\nSHELL OPTIONS: $-" >>$PWD/setup_gemdaq.debug
+
+    $(return >/dev/null 2>&1)
+    echo "\nRET STATUS: $?" >>$PWD/setup_gemdaq.debug
+
+    kill -INT $$
 fi
 
 if [[ ! "$0" =~ ("bash") ]];
