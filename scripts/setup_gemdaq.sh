@@ -310,10 +310,21 @@ then
     fi
 elif [[ $SYSTEM_INFO == *"gem904"* ]];
 then
+    # System Paths
     export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
-    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
     export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
     export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
+
+    # Setup LD_LIBARY_PATH
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+
+    # Add hardware access tools to PATH
+    export PATH=/opt/xhal/bin/:$PATH
+    export PATH=/opt/reg_utils/bin:$PATH
 
     # Firmware
     export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
@@ -330,8 +341,20 @@ then
     alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
 elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
 then
+    # System Paths
     export DATA_PATH=/gemdata
+
+    # Setup LD_LIBARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+
+    # Add hardware access tools to PATH
+    export PATH=/opt/xhal/bin/:$PATH
+    export PATH=/opt/reg_utils/bin:$PATH
 fi
 
 # Setup path
