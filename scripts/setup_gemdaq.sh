@@ -323,15 +323,12 @@ then
     export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
 
     # Add hardware access tools to PATH
-    export PATH=/opt/xhal/bin/:$PATH
+    export PATH=/opt/cactus/bin/amc13/:$PATH
     export PATH=/opt/reg_utils/bin:$PATH
+    export PATH=/opt/xhal/bin/:$PATH
 
     # Firmware
     export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
-
-    # AMC13 Tool
-    alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
-    alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
 
     # xDAQ
     alias xdaq=/opt/xdaq/bin/xdaq.exe
@@ -353,6 +350,7 @@ then
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
 
     # Add hardware access tools to PATH
+    export PATH=/opt/cactus/bin/amc13/:$PATH
     export PATH=/opt/xhal/bin/:$PATH
     export PATH=/opt/reg_utils/bin:$PATH
 fi
