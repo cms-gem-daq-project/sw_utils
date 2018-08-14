@@ -311,9 +311,11 @@ then
 elif [[ $SYSTEM_INFO == *"gem904"* ]];
 then
     # System Paths
-    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
-    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
     export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
+    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
+    export GBT_SETTINGS=/data/bigdisk/GEMDAQ_Documentation/system/OptoHybrid/V3/GBT_Files/
+    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
+    export REPO_PATH=/data/bigdisk/sw/gemonlinesw/repos/
 
     # Setup LD_LIBARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
