@@ -19,6 +19,9 @@
 # Don't ignore python
 !*.py
 
+# Don't ignore shell scripts
+!*.sh
+
 # Don't ignore requirements.txt
 !requirements.txt
 
