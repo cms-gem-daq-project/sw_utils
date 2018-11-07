@@ -337,7 +337,15 @@ then
 
     # Misc
     #alias arp-scan='sudo /usr/sbin/arp-scan'
+    alias arp-scan='ip n show dev "$@" to 192.168.0.0/16'
+    alias editConfig='vim $VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py'
     alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
+
+    # fedKit on gem904daq04
+    if [[ $SYSTEM_INFO == *"gem904daq04"* ]];
+    then
+        export PATH=/opt/xdaq/bin:$PATH
+    fi
 elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
 then
     # System Paths
