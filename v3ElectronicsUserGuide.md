@@ -1,6 +1,7 @@
 Table of Contents
 =================
 
+   * [Table of Contents](#table-of-contents)
    * [How to Use This Guide](#how-to-use-this-guide)
    * [Test Stand Ettiquette](#test-stand-ettiquette)
       * [Available Test Stands &amp; Their Uses](#available-test-stands--their-uses)
@@ -58,10 +59,12 @@ Table of Contents
          * [Temperature Monitoring](#temperature-monitoring)
       * [VFAT3](#vfat3)
          * [General Overview of VFAT3](#general-overview-of-vfat3)
+         * [DAC Monitoring](#dac-monitoring)
          * [Checking VFAT Registers](#checking-vfat-registers)
          * [Checking VFAT Synchronization](#checking-vfat-synchronization)
          * [Configuration File on CTP7](#configuration-file-on-ctp7)
    * [Building GEM Software](#building-gem-software)
+      * [Build Prerequisites: The gembuild repo](#build-prerequisites-the-gembuild-repo)
       * [cmsgemos](#cmsgemos)
          * [Compiling the entire framework](#compiling-the-entire-framework)
          * [Compiling Only gempython](#compiling-only-gempython)
@@ -92,12 +95,12 @@ Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 --------------------
 Hello! Congratulations, you're taking one of the first steps to becoming an expert on the GEM DAQ Electronics. For you to get the most out of this guide there's a couple of things that we should discuss first. The first is how this guide should be used. It's broken down into several sections, each section focuses on a specific topic:
 
- - [Test Stand Ettiquette](LINK): how to use our test stands, not collide with other users, and most importantly the electronic logbook;
- - [Back-end Electronics](LINK): how to use the [CTP7](LINK), the [AMC13](LINK), and maybe one day the GLIB (I'm looking at you Phase II Upgrade Community);
- - [Front-end Electronics](LINK): how [LV power](LINK) works, how to use the [FEASTMP](LINK), the [GBTx](LINK), the [Slow Control ASIC (SCA)](LINK), the OH FPGA, and most importantly the [VFAT3](LINK);
- - [Building GEM Software Tools](LINK);
- - [Configuring a Detector](LINK); and
- - [Taking Calibration Scans](LINK);
+ - [Test Stand Ettiquette](#test-stand-ettiquette): how to use our test stands, not collide with other users, and most importantly the electronic logbook;
+ - [Back-end Electronics](#back-end-electronics): how to use the [CTP7](#ctp7), the [AMC13](#amc13), and maybe one day the GLIB (I'm looking at you Phase II Upgrade Community);
+ - [Front-end Electronics](#front-end-electronics): how [LV power](#lv-power) works, how to use the [FEASTMP](#feastmp), the [GBTx](#gbtx), the [Slow Control ASIC (SCA)](#slow-control-asic-sca), the OH FPGA, and most importantly the [VFAT3](#vfat3);
+ - [Building GEM Software Tools](#building-gem-software);
+ - [Configuring a Detector](#configuring-a-detector); and
+ - [Taking Calibration Scans](#taking-calibration--commissioning-data);
 
 # Test Stand Ettiquette
 --------------------
@@ -148,7 +151,7 @@ Some useful commands are:
  - `rg` General reset,
  - `rc` Counter reset,
  - `rd` DAQ Link reset,
- - `st` Display AMC13 Status (see [Checking Status of a Given Crate](LINK)),
+ - `st` Display AMC13 Status (see [Checking Status of a Given Crate](#checking-status-of-a-given-crate)),
 
 #### Enabling Clock to an AMC Slot
 
@@ -187,13 +190,13 @@ Have your test stand sysadmin execute the following procedure:
  1. Get the latest file from the [AMC13 FW Page](http://ohm.bu.edu/~dgastler/CMS/AMC13-Firmware/?C=M;O=D),
  2. Program the flash of the virtex (kintex) FPGA with the `pv` (`pk`) command,
  3. Verify the flash of the virtex (kintex) FPGA with the `vv` (`vk`) command; if the verification is *not* successful do *not* continue, repeat step 2 unitl step 3 succeeds,
- 4. Reconfigure the FPGA's following instructions under [Reloading FW](LINK).
+ 4. Reconfigure the FPGA's following instructions under [Reloading FW](#reloading-fw).
 
 Note if you execute step 4 without step 3 succeeding you could brick the board and by extension the uTCA crate. An example of a successful firmware upgrade can be found in this [elog entry](http://cmsonline.cern.ch/cms-elog/946282).
 
 #### Reloading FW
 
-To reload the FW in the AMC13 enter the `AMC13Tool2.exe` tool and execute `reconfigureFPGAs`. Note this will cause the card to be non-responsive for a small amount of time.  Additionally it will necessasitate a reload of FW of everything downlink of the AMC13 (e.g. any CTP7's in the uTCA crate, any OH's on those CTP7s, reconfiguring any VFATs on those CTP7's, etc...).  This action should typically note be done except in the most dire of circumstances (e.g. when any and all other troubleshooting actions have been attempted, and failed).  This will then require the user to re-enable the clock to all AMC slots of interest in a crate following instructions under [Enabling Clock to an AMC Slot](LINK).
+To reload the FW in the AMC13 enter the `AMC13Tool2.exe` tool and execute `reconfigureFPGAs`. Note this will cause the card to be non-responsive for a small amount of time.  Additionally it will necessasitate a reload of FW of everything downlink of the AMC13 (e.g. any CTP7's in the uTCA crate, any OH's on those CTP7s, reconfiguring any VFATs on those CTP7's, etc...).  This action should typically note be done except in the most dire of circumstances (e.g. when any and all other troubleshooting actions have been attempted, and failed).  This will then require the user to re-enable the clock to all AMC slots of interest in a crate following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).
 
 ## CTP7
 
@@ -224,7 +227,7 @@ On the CTP7 there will be two important directories:
 /mnt/persistent/rpcmodules
 ```
 
-The `gemdaq` subdirectory is described below and the `rpcmodules` subdirectory is described in [RPC Modules and the LMDB](LINK).  The `gemdaq` subdirectory looks like:
+The `gemdaq` subdirectory is described below and the `rpcmodules` subdirectory is described in [RPC Modules and the LMDB](#rpc-modules-and-the-lmdb).  The `gemdaq` subdirectory looks like:
 
 ```bash
 $ ll
@@ -283,7 +286,7 @@ lrwxrwxrwx    1 gemuser  1001            53 Aug 10 15:27 config_OHX_VFATY.txt ->
 -rw-r--r--    1 gemuser  1001          1267 Aug 10 15:27 config_OHX_VFATY_cal.txt
 ```
 
-The symlink is what is used by the configuration command to configure the `vfat3` in `(ohN,vfatN) = (X,Y)` position; so this must always be a valid link.  An example of how this file is expected to look can be found in the [Configuration File on CTP7](LINK) section.
+The symlink is what is used by the configuration command to configure the `vfat3` in `(ohN,vfatN) = (X,Y)` position; so this must always be a valid link.  An example of how this file is expected to look can be found in the [Configuration File on CTP7](#ctp7) section.
 
 The address table `xml` files will be found under the `xml` folder and a set of symlinks will be specified there, for example:
 
@@ -296,7 +299,7 @@ lrwxrwxrwx    1 51446    1399            18 Aug  8 15:45 gem_amc_top.xml -> gem_
 lrwxrwxrwx    1 51446    1399            24 Aug  8 15:41 optohybrid_registers.xml -> oh_registers_3.1.2.B.xml
 ```
 
-Finally any action taken on a CTP7 should be recorded in full on the elog that corresponds to the system the card is on.  See [Electronic Logbook](LINK) for details on which elog is of interest and how to make a proper elog. 
+Finally any action taken on a CTP7 should be recorded in full on the elog that corresponds to the system the card is on.  See [Electronic Logbook](#electronic-logbook) for details on which elog is of interest and how to make a proper elog. 
 
 ### CTP7 Filesystem Stuck as readonly?
 
@@ -327,13 +330,13 @@ mount -o remount,rw /dev/mmcblk0p2 /mnt/image-persist
 
 If the CMS GEM project has *just* received a new CTP7, or a new SD card has been placed in an CTP7 already in our possession, you will need to setup the linux partition on the card.  For this have the test stand sysadmin execute from the test stand's DAQ PC:
 
- 1. Setup `xhal` tag `3.2.2` following instructions [here](LINK),
+ 1. Setup `xhal` tag `3.2.2` following instructions [here](#legacy-pre-packaging-instructions-for-tag-322),
  2. Checkout the `gemctp7user` repository:
 ```bash
 cd $BUILD_HOME
 git clone https://github.com/cms-gem-daq-project/gemctp7user.git
 ```
- 3. Checkout the `ctp7_modules` repository and compile the shared object libraries following instructions [here](LINK),
+ 3. Checkout the `ctp7_modules` repository and compile the shared object libraries following instructions under [ctp7_modules](#ctp7_modoules),
  4. Execute the `setup_ctp7.sh` sxcript from the `gemctp7user` repo:
 ```bash
 cd $BUILD_HOME/gemctp7user
@@ -571,7 +574,7 @@ The v2b hardware is considered end-of-life and legacy system.  Little to no supp
 cold_boot.sh
 ```
 
-It is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](LINK)
+It is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot)
 
 ##### v3 Hardware
 
@@ -581,7 +584,7 @@ The v3 hardware requires a different polarity of come of the CXP's on the CTP7, 
 cold_boot_invert_tx.sh
 ```
 
-As in the v2b case it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](LINK)
+As in the v2b case it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot)
 
 #### Full Recovery: `recover.sh`
 
@@ -599,7 +602,7 @@ This will be a symlink to either `recover_v2.sh` or `recover_v3.sh` in the `/mnt
  - place the OH FW into the CTP7 RAM for PROM-less (e.g. `BLASTER(tm)` programming), and 
  - disable forwarding of TTC resets to the front-end.
 
-Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](LINK).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
+Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
 
 An example of a successful recovery is illustrated in this [elog entry](http://cmsonline.cern.ch/cms-elog/1060543).
 
@@ -648,8 +651,8 @@ Note **do not copy paste this, you _must_ manually type it**.  If you copy/paste
 cd /mnt/persistent/gemdaq/gemloader
 ./gemloader_configure.sh
 ```
- 29. If the address space has changed you must update the `LMDB` on the CTP7, see [Updating the LMDB](LINK).
- 30. To confirm that the update was successful reprogram all optohybrids following instructions under [Programming OH FPGA](LINK).
+ 29. If the address space has changed you must update the `LMDB` on the CTP7, see [Updating the LMDB](#updating-the-lmdb).
+ 30. To confirm that the update was successful reprogram all optohybrids following instructions under [Programming OH FPGA](#programming-oh-fpga).
     - Note this will kill any running process on the hardware, but if you're updating FW no one should be using the system anyway.
  31.  Summarize the actions you took in the elog entry you have already opened.
 
@@ -659,7 +662,7 @@ To recover a GEM test stand after a power cut execute:
 
  1. Ensure the uTCA crate and associated hardware all have power
      - E.g. the crate, all AMCs, network swtiches, DAQ computer, etc...
- 2. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](LINK),
+ 2. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot),
  3. For each CTP7 login as `texas` and execute: `killall rpcsvc`
      - Right now on boot the CTP7 linux core will start `rpcsvc` as the `texas` user and this is not gauranteed to have the correct `$ENV` for the `rpcmodules` on the card.
  4. For each CTP7 login as `gemuser` and execute: `recover.sh`
@@ -775,7 +778,7 @@ Ask the sysadmin of your test stand if it is necessary to change the charge pump
 
 #### Over Fiber: `gbt.py`
 
-To program the GBTx over the fiber link it must be at least minimally fused (so that it locks to the fiber link) and the `I2C` jumper for the GBTx in question must *not* be in place (e.g. open circuit).  Before proceeding please check that the GBTx communication is good by following instructions under Section [Checking GBTx Status on a Given OH](LINK).  Once communication is enabled exectue the following procedure:
+To program the GBTx over the fiber link it must be at least minimally fused (so that it locks to the fiber link) and the `I2C` jumper for the GBTx in question must *not* be in place (e.g. open circuit).  Before proceeding please check that the GBTx communication is good by following instructions to check the GBTx status on a given ON under Section [GBT_READY Registers](#gbt_ready-registers).  Once communication is enabled exectue the following procedure:
 
 1. login to the CTP7 of choice as `gemuser` (e.g. `ssh gemuser@eagle60`),
 2. Once logged in, to configure GBT `X` of OH `Y` execute:
@@ -791,7 +794,7 @@ The GBTx will now be programmed. The GBT config files a CTP7 can be found under:
 
 #### Performing a GBT Phase Scan
 
-Again, the GBTx must be at least minimally fused (so that it locks to the fiber link) and the `I2C` jumper for the GBTx in question must *not* be in place (e.g. open circuit).  Before proceeding please check that the GBTx communication is good by following instructions under Section [Checking GBTx Status on a Given OH](LINK).  Once communication is enabled exectue the following procedure:
+Again, the GBTx must be at least minimally fused (so that it locks to the fiber link) and the `I2C` jumper for the GBTx in question must *not* be in place (e.g. open circuit).  Before proceeding please check that the GBTx communication is good by following instructions to check the GBTx status on a given ON under Section [GBT_READY Registers](#gbt_ready-registers).  Once communication is enabled exectue the following procedure:
 
 ```
 gbt.py Y X v3b-phase-scan <config file> 2>&1 | tee $HOME/oh_Y_gbt_X_phase_scan.txt
@@ -818,7 +821,7 @@ This can only be done with the USB dongle and this should be done only by true h
  9. In a separate terminal in `gem_reg.py` verify that the `GBT_READY` register of this GBTx is `0x1`, 
  10. Issue a link reset then read the errors flags for this GBTx (NOT ready, was not ready) to ensure they are `0x0`,
  11. Check that `SYNC_ERR_CNT` of all VFATs on this GBTx are `0x0` and the counters do not roll up,
-     - See [E-link Assignment in GE1/1](LINK) for GBTx-VFAT correspondence
+     - See [E-link Assignment in GE1/1](#e-link-assignment-in-ge11) for GBTx-VFAT correspondence
  12. Check that you have slow control with all VFATs on this GBTx by executing `kw CFG_RUN <OH Number>` only `0x0` should be returned for the VFATs on this GBTx, if not there is a problem,
      - In rare cases `SYNC_ERR_CNT` are all `0x0` but VFAT communication is dead),
  13. Go back to the `gbtProgrammer` window,
@@ -871,7 +874,7 @@ eagle60 > kw OH_LINKS.OH1.GBT
 0x65800800 r    GEM_AMC.OH_LINKS.OH1.GBT2_RX_HAD_UNDERFLOW              0x00000000
 ```
 
-If `GBTY_READY` is not `0x1` or `GBTY_WAS_NOT_READY` stays `0x1` after [Issuing a GBT Link Reset](LINK) then your communication is probably *not* good.  Check the following:
+If `GBTY_READY` is not `0x1` or `GBTY_WAS_NOT_READY` stays `0x1` after [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset) then your communication is probably *not* good.  Check the following:
 
  - The electronics are powered,
  - The TX from the CTP7 to the GBTx is going into the left position (OH is oriented with FPGA facing you and VTTx/VTRx are pointing towards the floor) of the VTRx that corresponds to this GBTx, or
@@ -919,7 +922,7 @@ sca.py eagle60 0x3 r
 
 This will issue an SCA reset to OH's 0 and 1 on `eagle60`.
 
-If a red error message appears for one or more of the OH's in your `ohMask` re-issue the SCA reset until no red error messages appear. For subsequent SCA resets issued in this way you can use the same `ohMask` or modify it to remove the healthy OH's.  If continuing to issue an sca reset does not resolve the issue (i.e. red error messages continue to appear) there is a problem and you probably lost communication.  In this case check the status of `GBT0` on each of the problem GBTs using instructions under [GBT_READY Registers](LINK), if GBTX is either not ready or was not ready you may need to either issue a GBTx link reset (see [Issuing a GBT Link Reset](LINK)), re-program GBT0 (see [Programming GBTx](LINK)), or in rare cases power cycle and start from scratch.
+If a red error message appears for one or more of the OH's in your `ohMask` re-issue the SCA reset until no red error messages appear. For subsequent SCA resets issued in this way you can use the same `ohMask` or modify it to remove the healthy OH's.  If continuing to issue an sca reset does not resolve the issue (i.e. red error messages continue to appear) there is a problem and you probably lost communication.  In this case check the status of `GBT0` on each of the problem GBTs using instructions under [GBT_READY Registers](#gbt_ready-registers), if GBTX is either not ready or was not ready you may need to either issue a GBTx link reset (see [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset)), re-program GBT0 (see [Programming GBTx](#programming-gbtx)), or in rare cases power cycle and start from scratch.
 
 ### Checking SCA Status
 
@@ -984,11 +987,11 @@ Here we see that SCA READY is `0x2` so only OH1 has stable communication and no 
 
 ### VFAT Reset Lines
 
-In the OHv3c version the VFAT reset lines are controlled by the SCA and not the OH FPGA.  In CTP7 firmware versions higher than 3.5.2 the resets will automatically be lifted and no user action is required.  On older CTP7 FW versions to lift the VFAT resets first program the OHv3c FPGA following instructions under Section [Programming OH FPGA](LINK) then execute:
+In the OHv3c version the VFAT reset lines are controlled by the SCA and not the OH FPGA.  In CTP7 firmware versions higher than 3.5.2 the resets will automatically be lifted and no user action is required.  On older CTP7 FW versions to lift the VFAT resets first program the OHv3c FPGA following instructions under Section [Programming OH FPGA](#programming-oh-fpga) then execute:
 
  1. From the DAQ machine execute `sca.py eagleXX ohMask gpio-set-direction 0x0fffff8f`,
  2. From the DAQ machine execute `sca.py eagleXX ohMask gpio-set-output 0xf00000f0`,
- 3. from the DAQ machine send a GBTx link reset, see Section [Issuing a GBT Link Reset](LINK),
+ 3. from the DAQ machine send a GBTx link reset, see Section [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset),
  4. Then check the status of the GBT's in `gem_reg.py` (`kw OH_LINKS.OH0.GBT`),
  5. Report the status of link good of all VFATs (`kw LINK_GOOD 0`),
  6. Report the status of sync error counters of all VFATs (`kw SYNC_ERR_CNT 0`),
@@ -1003,9 +1006,9 @@ Unlike the OHv2b the OHv3 FPGA is not responsible for slow control or data trans
 To program the FPGA we recommend the "PROM-less" or `BLASTER(tm)` method.  To program the OH FPGA execute the following:
 
  1. Power the LV,
- 2. Program all GBTs on the OHv3 via one of the methods under [Programming GBTx](LINK),
+ 2. Program all GBTs on the OHv3 via one of the methods under [Programming GBTx](#programming-gbtx),
     - In the rare case that the GBTx's on your OH are fully fused proceed to step 3
- 3. Issue an sca reset following instructions under [Issuing an SCA Reset](LINK),
+ 3. Issue an sca reset following instructions under [Issuing an SCA Reset](#issuing-an-sca-reset),
  4. From `gem_reg.py` on the DAQ PC connect to the CTP7 of interest with `connect eagleXX` and then enable the TTC generator via `write GEM_AMC.TTC.GENERATOR.ENABLE 1`,
  5. From `gem_reg.py` send a single TTC hard reset to program the FPGA with the `BLASTER(tm)` via `write GEM_AMC.TTC.GENERATOR.SINGLE_HARD_RESET 1`
     - Note this will issue this reset to *all* optohybrids on this CTP7 which *will* stop any existing data taking, crashing any scans, and wipe out any present configuration
@@ -1020,7 +1023,7 @@ cd /mnt/persistent/gemdaq/gemloader
 ./gemloader_configure.sh
 ```
 
-Then repeat step 5 again.  Note sometimes the OH FW does not load successfully into the CTP7 RAM and the call of `gemloader_configure.sh` must be repeated several times.  If however after this the FW is not loading onto one or more optohybrids check to make sure you have communication with the SCA of interest by following instructions under Section [Checking SCA Status](LINK).  If you're SCA communication is good and the FW is still not loading double check that the TTC Generator is enabled by reading the value of the `GEM_AMC.TTC.GENERATOR.ENABLE`.  If the TTC Generator is enabled, the SCA status is good, and the OH FW is in the CTP7 RAM check to make sure GBT0 is still good, see [GBT_READY Registers](LINK).  If GBT0 is no longer good then programming the FPGA will not be possible (as this is through GBT0).  In this case you may need to start the procedure again from step 1.  One final check would be to ensure the CTP7 Mapping register has the correct value, see [Checking CTP7 Mapping Register](LINK).
+Then repeat step 5 again.  Note sometimes the OH FW does not load successfully into the CTP7 RAM and the call of `gemloader_configure.sh` must be repeated several times.  If however after this the FW is not loading onto one or more optohybrids check to make sure you have communication with the SCA of interest by following instructions under Section [Checking SCA Status](#checking-sca-status).  If you're SCA communication is good and the FW is still not loading double check that the TTC Generator is enabled by reading the value of the `GEM_AMC.TTC.GENERATOR.ENABLE`.  If the TTC Generator is enabled, the SCA status is good, and the OH FW is in the CTP7 RAM check to make sure GBT0 is still good, see [GBT_READY Registers](#gbt_ready-registers).  If GBT0 is no longer good then programming the FPGA will not be possible (as this is through GBT0).  In this case you may need to start the procedure again from step 1.  One final check would be to ensure the CTP7 Mapping register has the correct value, see [Checking CTP7 Mapping Register](#checking-ctp7-mapping-register).
 
 If after all these you are still *unable* to program the FPGA the linux image of your CTP7 may be to old, contact your test stand's sysadmin.  Although typically this is not the case.
 
@@ -1147,6 +1150,44 @@ Finally there are a few calibration coefficients that are needed:
 - `CAL_THR_ARM_DAC_M`, slope in `y=mx+b` for converting `CFG_THR_ARM_DAC` to `fC` (needed for trimming),
 - `CAL_THR_ARM_DAC_B`, as `CAL_THR_ARM_DAC_M` but for intercept.
 
+### DAC Monitoring
+
+The VFAT3 has two internal 10 bit SAR ADCs.  They each use two difference voltage references:
+
+ - `ADC0` uses the internal reference derived from the bandgap,
+ - `ADC1` uses an external reference tied to the input digital voltage (DVDD)
+
+These can monitor the following values:
+
+|   Monitor Sel |   State   |   Register Name VFAT3 Manual  |   Bits    |   Min |   Max |   Register Name GEM XML Address Table |   Note    |
+|   :---------: |   :---:   |   :------------------------:  |   :--:    |   :-: |   :-: |   :---------------------------------: |   :---    | 
+|   1   |   Calib IDC   |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0x3f    |   ?   |       |
+|   2   |   Preamp InpTran  |   GBL_CFG_BIAS_1  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_PRE_I_BIT  |       |
+|   3   |   Pream LC    |   GBL_CFG_BIAS_2  |   [13:8]  |   0   |   0x3f    |   CFG_BIAS_PRE_I_BLCC |       |
+|   4   |   Preamp FC   |   GBL_CFG_BIAS_1  |   [13:8]  |   0   |   0x3f    |   CFG_BIAS_PRE_I_BSF  |       |
+|   5   |   Shap FC |   GBL_CFG_BIAS_3  |   [15:8]  |   0   |   0xff    |   CFG_BIAS_SH_I_BFCAS |       |
+|   6   |   Shap Inpair |   GBL_CFG_BIAS_3  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_SH_I_BDIFF |       |
+|   7   |   SD Inpair   |   GBL_CFG_BIAS_4  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_SD_I_BDIFF |       |
+|   8   |   SD FC   |   GBL_CFG_BIAS_5  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_SD_I_BFCAS |       |
+|   9   |   SD SF   |   GBL_CFG_BIAS_5  |   [13:8]  |   0   |   0x3f    |   CFG_BIAS_SD_I_BSF   |       |
+|   10  |   CFD Bias1   |   GBL_CFG_BIAS_0  |   [5:0]   |   0   |   0x3f    |   CFG_BIAS_CFD_DAC_1  |       |
+|   11  |   CFD Bias2   |   GBL_CFG_BIAS_0  |   [11:6]  |   0   |   0x3f    |   CFG_BIAS_CFD_DAC_2  |       |
+|   12  |   CFD Hyst    |   GBL_CFG_HYS |   [5:0]   |   0   |   0x3f    |   CFG_HYST    |       |
+|   13  |   CFD Ireflocal   |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
+|   14  |   CFD ThArm   |   GBL_CFG_THR |   [7:0]   |   0   |   0xff    |   CFG_THR_ARM_DAC |       |
+|   15  |   CFD ThZcc   |   GBL_CFG_THR |   [15:8]  |   0   |   0xff    |   CFG_THR_ZCC_DAC |       |
+|   16  |   SLVS Ibias  |   GBL_CFG_BIAS_6  |   [11:6]  |   0   |   0xff    |   ?   |   Does not appear in Section 7.5 Registers    |
+|   32  |   BGR |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
+|   33  |   Calib Vstep |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0x3f    |   ?   |       |
+|   34  |   Preamp Vref |   GBL_CFG_BIAS_2  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_PRE_VREF   |       |
+|   35  |   Vth Arm |   GBL_CFG_THR |   [7:0]   |   0   |   0xff    |   CFG_THR_ARM_DAC |       |
+|   36  |   Vth ZCC |   GBL_CFG_THR |   [15:8]  |   0   |   0xff    |   CFG_THR_ZCC_DAC |       |
+|   37  |   V Tsens Int |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
+|   38  |   V Tsens Ext |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
+|   39  |   ADC_Vref    |   GBL_CFG_CTR_4   |   [9:8]   |   0   |   0x3 |   CFG_ADC_VREF    |       |
+|   40  |   ADC VinM    |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
+|   41  |   SLVS Vref   |   GBL_CFG_BIAS_6  |   [5:0]   |   0   |   0x3f    |   ?   |   Does not appear in Section 7.5 Registers    |
+
 ### Checking VFAT Registers
 
 Presently `vfat_info_uhal.py` does not have functionality for monitoring v3 electronics.  In the meantime you can get information on VFATY of OHX from `gem_reg.py` by executing:
@@ -1181,7 +1222,7 @@ Typical causes of bad communication are:
 
 ### Configuration File on CTP7
 
-The `confChamber.py` tool, see [Configuring a Detector](LINK), can be used to apply a common DAC setting to *all* VFATs for a given register.  However to apply a unique, per VFAT, value to a given register presently the VFAT configuration file on the CTP7 must be manually edited, an example is shown below:
+The `confChamber.py` tool, see [Configuring a Detector](#configuring-a-detector), can be used to apply a common DAC setting to *all* VFATs for a given register.  However to apply a unique, per VFAT, value to a given register presently the VFAT configuration file on the CTP7 must be manually edited, an example is shown below:
 
 ```bash
 eagle26:/mnt/persistent/gemdaq$ more vfat3/config_OH3_VFAT9_cal.txt
@@ -1238,7 +1279,11 @@ BIAS_SD_I_BFCAS       255
 
 # Building GEM Software
 --------------------
-Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.  Additionally for *all* repositories *except* `cmsgemos` you'll need to get the `config/` directory from the `gembuild` repository.  To do this once you've cloned the repository of interest execute:
+Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.  
+
+## Build Prerequisites: The gembuild repo
+
+For *all* repositories *except* `cmsgemos` you'll need to get the `config/` directory from the `gembuild` repository.  To do this once you've cloned the repository of interest execute:
 
 ```bash
 cd <repo folder>
@@ -1562,10 +1607,10 @@ This will print various info about the board, the DAQ link status, the TTC statu
 Assuming your back-end electronics are setup correctly you can configure the front-end electronics by executing the following steps:
 
 1. Power the LV of your detector(s),
-2. If the GBTx chips of your optohybrid(s) are not fully fused, program the GBTx chips, see [Programming GBTx](LINK),
-3. Program the FPGA of the optohybrid(s), see [Programming OH FPGA](LINK),
-4. Issue a GBTx link reset, see [Issuing a GBT Link Reset](LINK),
-5. Check the VFATs are all synchronized on your optohybrid(s), see [Checking VFAT Synchronization](LINK),
+2. If the GBTx chips of your optohybrid(s) are not fully fused, program the GBTx chips, see [Programming GBTx](#programming-gbtx),
+3. Program the FPGA of the optohybrid(s), see [Programming OH FPGA](#programming-oh-fpga),
+4. Issue a GBTx link reset, see [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset),
+5. Check the VFATs are all synchronized on your optohybrid(s), see [Checking VFAT Synchronization](#checking-vfat-synchronization),
 
 You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
 
@@ -1573,11 +1618,11 @@ You are now ready to issue a configure command.  The configure command is done w
 confChamber.py cardName -gX
 ```
 
-This will issue an RPC call to the CTP7 whose network alias is `cardName` and load all the per VFAT3 configuration settings in each of the VFAT3 configuration files (see [Configuration File on CTP7](LINK)) for optohybrid `X`. Note it is important to have edited each of these files to ensure the `CFG_IREF` value for your VFATs on all your optohybrid(s) is the unique value each chip needs.  
+This will issue an RPC call to the CTP7 whose network alias is `cardName` and load all the per VFAT3 configuration settings in each of the VFAT3 configuration files (see [Configuration File on CTP7](#configuration-file-on-ctp7)) for optohybrid `X`. Note it is important to have edited each of these files to ensure the `CFG_IREF` value for your VFATs on all your optohybrid(s) is the unique value each chip needs.  
 
 ## Using `chamber_vfatDACSettings` to write common register values
 
-While some registers must be set by hand since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](LINK)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
+While some registers must be set by hand since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
 
 ```bash
 % ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
@@ -1622,7 +1667,7 @@ With these settings a call of `confChamber.py` will overwrite the values of:
  - `CFG_RES_PRE`, and
  - `CFG_CAP_PRE`
 
-registers in the [Configuration File on CTP7](LINK) for all VFATs for optohybrids 0 through 2.
+registers in the [Configuration File on CTP7](#configuration-file-on-ctp7) for all VFATs for optohybrids 0 through 2.
 
 # Taking Calibration & Commissioning Data
 --------------------
@@ -1654,7 +1699,7 @@ Here the `getVFATMask.py` tool was given `eagleXX` `OHY` and returns `some hex n
 
 ## The Mapping File: `chamberInfo.py
 
-The `chamberInfo.py` file in addition to defining the `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](LINK)) also defines three other dictionaries: `chamber_config`, `GEBtype` and `chamber_vfatMask`.  These dictionaries allow automatic discovery of detector serial numbers, data paths, chamber type, and vfat mask.  As mentioned the `chamberInfo.py` file is either a symlink in the system installed package (which points to a user editable area):
+The `chamberInfo.py` file in addition to defining the `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)) also defines three other dictionaries: `chamber_config`, `GEBtype` and `chamber_vfatMask`.  These dictionaries allow automatic discovery of detector serial numbers, data paths, chamber type, and vfat mask.  As mentioned the `chamberInfo.py` file is either a symlink in the system installed package (which points to a user editable area):
 
 ```bash
 % ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
