@@ -1161,7 +1161,7 @@ These can monitor the following values:
 
 |   Monitor Sel |   State   |   Register Name VFAT3 Manual  |   Bits    |   Min |   Max |   Register Name GEM XML Address Table |   Note    |
 |   :---------: |   :---:   |   :------------------------:  |   :--:    |   :-: |   :-: |   :---------------------------------: |   :---    | 
-|   1   |   Calib IDC   |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0x3f    |   ?   |       |
+|   1   |   Calib IDC   |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0xff    |   CFG_CAL_DAC   |       |
 |   2   |   Preamp InpTran  |   GBL_CFG_BIAS_1  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_PRE_I_BIT  |       |
 |   3   |   Pream LC    |   GBL_CFG_BIAS_2  |   [13:8]  |   0   |   0x3f    |   CFG_BIAS_PRE_I_BLCC |       |
 |   4   |   Preamp FC   |   GBL_CFG_BIAS_1  |   [13:8]  |   0   |   0x3f    |   CFG_BIAS_PRE_I_BSF  |       |
@@ -1178,7 +1178,7 @@ These can monitor the following values:
 |   15  |   CFD ThZcc   |   GBL_CFG_THR |   [15:8]  |   0   |   0xff    |   CFG_THR_ZCC_DAC |       |
 |   16  |   SLVS Ibias  |   GBL_CFG_BIAS_6  |   [11:6]  |   0   |   0xff    |   ?   |   Does not appear in Section 7.5 Registers    |
 |   32  |   BGR |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
-|   33  |   Calib Vstep |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0x3f    |   ?   |       |
+|   33  |   Calib Vstep |   GBL_CFG_CAL_0   |   [9:2]   |   0   |   0xff    |   CFG_CAL_DAC   |       |
 |   34  |   Preamp Vref |   GBL_CFG_BIAS_2  |   [7:0]   |   0   |   0xff    |   CFG_BIAS_PRE_VREF   |       |
 |   35  |   Vth Arm |   GBL_CFG_THR |   [7:0]   |   0   |   0xff    |   CFG_THR_ARM_DAC |       |
 |   36  |   Vth ZCC |   GBL_CFG_THR |   [15:8]  |   0   |   0xff    |   CFG_THR_ZCC_DAC |       |
