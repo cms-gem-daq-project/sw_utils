@@ -1601,6 +1601,17 @@ amc_info_uhal.py --shelf=X -sY
 
 This will print various info about the board, the DAQ link status, the TTC status, and the SCA status. Note that `ipbus` must be running on the CTP7.
 
+## Reading a register repeatedly
+
+If you would like to repeatedly read the same register (e.g. in order to determine the rate of bits being flipped) execute:
+
+```
+repeated_reg_read.py REGISTER_NAME X Y --card eagleXX
+```
+
+This will read the register X times, pausing Y microseconds in between each read, and report the results as a dictionary to the terminal and to a text file. Y should be set to > 250 microseconds.
+
+
 # Configuring a Detector
 --------------------
 
