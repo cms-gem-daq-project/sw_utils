@@ -82,6 +82,7 @@ Table of Contents
       * [Checking CTP7 Mapping Register](#checking-ctp7-mapping-register)
       * [Checking Trigger Rates](#checking-trigger-rates)
       * [Getting Info About the CTP7](#getting-info-about-the-ctp7)
+      * [Reading a Register Repeatedly](#reading-a-register-repeatedly)
    * [Configuring a Detector](#configuring-a-detector)
       * [Using chamber_vfatDACSettings to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)
    * [Taking Calibration &amp; Commissioning Data](#taking-calibration--commissioning-data)
@@ -1601,7 +1602,7 @@ amc_info_uhal.py --shelf=X -sY
 
 This will print various info about the board, the DAQ link status, the TTC status, and the SCA status. Note that `ipbus` must be running on the CTP7.
 
-## Reading a register repeatedly
+## Reading a Register Repeatedly
 
 If you would like to repeatedly read the same register (e.g. in order to determine the rate of bits being flipped) execute:
 
@@ -1609,8 +1610,7 @@ If you would like to repeatedly read the same register (e.g. in order to determi
 repeated_reg_read.py REGISTER_NAME X Y --card eagleXX
 ```
 
-This will read the register X times, pausing Y microseconds in between each read, and report the results as a dictionary to the terminal and to a text file. Y should be set to > 250 microseconds.
-
+This will read register REGISTER_NAME X times, pausing Y microseconds between each read. Results are written to terminal and also an output text file: [filename].txt Y should be set to > 250 microseconds.
 
 # Configuring a Detector
 --------------------
