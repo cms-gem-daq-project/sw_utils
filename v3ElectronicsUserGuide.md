@@ -1610,7 +1610,7 @@ If you would like to repeatedly read the same register (e.g. in order to determi
 repeated_reg_read.py REGISTER_NAME X Y --card eagleXX
 ```
 
-This will read register REGISTER_NAME X times, pausing Y microseconds between each read. Results are written to terminal and also an output text file: [filename].txt Y should be set to > 250 microseconds.
+This will read register `REGISTER_NAME` `X` times, pausing `Y` microseconds between each read. Results are written to terminal and also an output text file: `[filename].txt`. `Y` should be set to >= 250 microseconds.
 
 # Configuring a Detector
 --------------------
