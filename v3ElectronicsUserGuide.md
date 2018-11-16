@@ -7,6 +7,7 @@ Table of Contents
       * [Available Test Stands &amp; Their Uses](#available-test-stands--their-uses)
       * [Test Stand Infrastructure](#test-stand-infrastructure)
       * [Electronic Logbook](#electronic-logbook)
+      * [Requesting Time on GEM Test Stands](#requesting-time-on-gem-test-stands)
    * [Back-end Electronics](#back-end-electronics)
       * [AMC13](#amc13)
          * [Using AMC13Tool2.exe](#using-amc13tool2exe)
@@ -117,6 +118,45 @@ Mainframes, fiber patch panels, uTCA crate numbers & names, AMC's, etc...
 ## Electronic Logbook
 
 Map elog to test stand
+
+## Requesting Time on GEM Test Stands
+
+Each stand has it's own requisition page on SuperSAAS to manage testing and ensure we do not collide with other users.
+
+If you need time on a particular setup you need to understand what hardware you will be using.  Will this be just the front-end(s) on a given link? In this case you'll need time on the AMC in question.  Will testing involved the front-end being triggered from a trigger source coming from AMC13? Then you'll need time on the uTCA crate in question.
+
+If you need just a front-end link (or multiple links) on a given CTP7 and do not plan to use any additional hardware (e.g. triggers generated from an AMC13) then use the following schedule links:
+
+| BirdName | Schedule Page |
+| :------: | :------------ |
+| eagle26 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle26) |
+| eagle34 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle34) |
+| eagle60 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle60) |
+| eagle64 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle64) |
+
+If you need both a front-end link (or multiple links) and multiple AMC's in a uTCA Crate (e.g. a single CTP7 and the AMC13) then use the following schedule links:
+
+| Crate Name | Schedule Page |
+| :--------: | :------------ |
+| Integration Shelf 01 | [904 Integration Shelf 01](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_Integration_uTCA_Shelf_01) |
+| Integration Shelf 02 | [904 Integration Shelf 02](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_Integration_uTCA_Shelf_02) |
+| QC8 Shelf 01 | [904_QC8_uTCA_Shelf_01](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_QC8_uTCA_Shelf_01) |
+| QC8 Shelf 02 | [904_QC8_uTCA_Shelf_02](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_QC8_uTCA_Shelf_02) |
+| QC8 Data-Taking | [QC8 Data Taking](https://www.supersaas.com/schedule/GEM_904_Infrastructure/QC8-Data-Taking) |
+
+Note the last entry *QC8 Data-Taking* implies all CTP7's in shelf01, the AMC13 in shelf01, *and* the uFEDKit. 
+
+When scheduling you need to provide an estimate for:
+
+- Your name
+- Your email
+- Time your test will take (starting & ending time),
+- Phone number you are reachable at while using the test stand, and
+- Description of your test.
+
+Your request will be submitted and then approved. Note you may only use the stand once the request has been *approved*.  Once your request has been approved and you start using the stand you still are require to make an elog entry documenting the actiosn you have taken, their outcome, and relevant commands, etc...
+
+The full list of GEM 904 hardware scheduling is available [here](https://www.supersaas.com/schedule/GEM_904_Infrastructure/).
 
 # Back-end Electronics
 --------------------
