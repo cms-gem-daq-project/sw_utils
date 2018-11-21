@@ -105,11 +105,37 @@ Hello! Congratulations, you're taking one of the first steps to becoming an expe
 
 # Test Stand Ettiquette
 --------------------
-Procedure for getting access to and taking control of a test stand
+It's important to realize we are all sharing a set of common equipment and are working toward a common goal. Furthermore you and your coworkers are at various skill levels and possess different degrees of familiarity with the hardware and the software. This brings us to the first important point:
+
+- **Leave the test stand how you found it**.
+
+This specifically refers to the:
+
+1. Test stand infrastructure (e.g. fiber patch panels, power supplies, DAQ computer, etc...), and
+2. State of software (e.g. `rpcmodules`) and firmware of backend electronics.
+
+It can be expected that you would need to configure the front-end electronics for whatever test/developpment you are working on.  But the back-end electronics should *always* be left in a useable state for the next user (i.e. how *you* found them).
+
+Moreover if you are not on the list of approved individuals who can modify the hardware/stand infrastructure you should not (if you are wondering if you are on this list it means you are *not*).
+
+Failure to follow these rules makes more work for the expert team, sysadmi/test stand responsible.  Failure to conform repeatedly will result in loss of access to the test stand.
+
+Once you realize this you should:
+
+1. [Determing the right test stand to use](#available-test-stands--their-uses),
+2. [Request time on a test stand](#requesting-time-on-gem-test-stands), and
+3. Use the [appropriate e-log](#electronic-logbook) to log all activities.
 
 ## Available Test Stands & Their Uses
+The following 904 test stands exist.
 
-Describe test stands
+| Stand | Location | Purpose |
+| :---: | :------: | :------ |
+| Coffin | Integration Side of 904 | General purpose debugging station. Supports P5 operation, general software development, firmware testing, and trigger development.  Only place combined ME1/1+GE1/1 runs can be taken. |
+| V3 Electronics R&D | GEM 904 Lab | Dedicated to testing sustained operation of GE1/1 detectora. | 
+| QC8 | GEM 904 Lab | Production test stand for GE1/1 qualification. |
+
+Unless you are involved in, or performing a test for, the sustained operations group or QC8 for GE1/1 qualification you should default to using the "Coffin" setup.
 
 ## Test Stand Infrastructure
 
@@ -117,7 +143,20 @@ Mainframes, fiber patch panels, uTCA crate numbers & names, AMC's, etc...
 
 ## Electronic Logbook
 
-Map elog to test stand
+For each of the test stands described under the [Available Test Stands & Their Uses](#available-test-stands--their-uses) section a corresponding electronic logbook exists; as shown in the table below:
+
+| Stand | E-Log |
+| :---: | :---: |
+| "Coffin" | [904 Integration](https://cmsonline.cern.ch/webcenter/portal/cmsonline/pages_common/elog?__adfpwp_action_portlet=623564097&__adfpwp_backurl=https%3A%2F%2Fcmsonline.cern.ch%3A443%2Fwebcenter%2Fportal%2Fcmsonline%2Fpages_common%2Felog%3FMedia-Type%3Dscreen%26Media-Feature-Scan%3D0%26Media-Feature-Orientation%3Dlandscape%26Media-Feature-Device-Height%3D1050%26Media-Feature-Height%3D789%26_afrWindowMode%3D0%26Media-Feature-Monochrome%3D0%26Font-Size%3D16%26Media-Feature-Color%3D8%26Media-Featured-Grid%3D0%26_afrLoop%3D12894451140606290%26Media-Feature-Resolution%3D192%26Media-Feature-Width%3D1680%26Media-Feature-Device-Width%3D1680%26Media-Feature-Color-Index%3D0%26Adf-Window-Id%3Dw0%26__adfpwp_mode.623564097%3D1&_piref623564097.strutsAction=%2FviewSubcatMessages.do%3FcatId%3D791%26subId%3D799%26page%3D1) |
+| V3 Electronics R&D | [V3 Electronics Testing](https://cmsonline.cern.ch/webcenter/portal/cmsonline/pages_common/elog?__adfpwp_action_portlet=623564097&__adfpwp_backurl=https://cmsonline.cern.ch:443/webcenter/portal/cmsonline/pages_common/elog?__adfpwp_mode.623564097=1&_piref623564097.strutsAction=//viewSubcatMessages.do?catId=791&subId=1511&page=1&fetch=1&mode=expanded) |
+| QC8 | [Cosmic Stand](https://cmsonline.cern.ch/webcenter/portal/cmsonline/pages_common/elog?__adfpwp_action_portlet=623564097&__adfpwp_backurl=https://cmsonline.cern.ch:443/webcenter/portal/cmsonline/pages_common/elog?_piref623564097.strutsAction=//viewSubcatMessages.do?catId=792&subId=793&page=1&fetch=1&mode=expanded) |
+
+When using a test stand you should:
+
+ 1. Open an elog once you start using the stand,
+ 2. Show commands executed, and when relevant their outputs, 
+ 3. Summarize the actions taken and the result(s)/problem(s) encountered, and
+ 4. State when you are finished using the stand
 
 ## Requesting Time on GEM Test Stands
 
