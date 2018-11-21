@@ -31,6 +31,7 @@ Table of Contents
                * [v3 Hardware](#v3-hardware)
             * [Full Recovery: recover.sh](#full-recovery-recoversh)
          * [To Update OH FW on CTP7](#to-update-oh-fw-on-ctp7)
+      * [Preparing For a Power Cut](#preparing-for-a-power-cut)
       * [Recovering From a Power Cut](#recovering-from-a-power-cut)
    * [Front-end Electronics](#front-end-electronics)
       * [LV Power](#lv-power)
@@ -734,6 +735,19 @@ cd /mnt/persistent/gemdaq/gemloader
  30. To confirm that the update was successful reprogram all optohybrids following instructions under [Programming OH FPGA](#programming-oh-fpga).
     - Note this will kill any running process on the hardware, but if you're updating FW no one should be using the system anyway.
  31.  Summarize the actions you took in the elog entry you have already opened.
+
+## Preparing For a Power Cut
+
+In order to safely prepare a GEM test stand before a planned power cut execute:
+
+ 1. Power down the High Voltage.
+     - Use the opportunity to power down other sensitive equipement such as PMT's.
+ 2. Power down the Low Voltage.
+ 3. Place the µTCA modules in extraction mode:
+     - Gently pull the hot swap tab on the AMC's (CTP7 and AMC13). Wait until the blue LED stays on solid on each AMC's.
+     - Gently pull the hot swap tab on the MCH. Again, wait until the blue LED stays solid on.
+ 5. Power down the µTCA crate Power Modules one at a time. If powered with AC/DC converters, simply flip the switch on the AC/DC one at a time.
+ 6. Finally, power off the DAQ computer.
 
 ## Recovering From a Power Cut
 
