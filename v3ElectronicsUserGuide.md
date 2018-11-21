@@ -753,15 +753,22 @@ In order to safely prepare a GEM test stand before a planned power cut execute:
 
 To recover a GEM test stand after a power cut execute:
 
- 1. Ensure the uTCA crate and associated hardware all have power
-     - E.g. the crate, all AMCs, network swtiches, DAQ computer, etc...
- 2. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot),
- 3. For each CTP7 login as `texas` and execute: `killall rpcsvc`
+ 1. Ensure the uTCA crate and associated hardware all have power.
+     - E.g. the crate, network switches, DAQ computer, etc...
+ 2. Start the DAQ computer first, then:
+     - Ensure that the `sysmgr`, `xinetd` and `dnsmasq` services are correctly started. You can use the `systemctl status <service name> command to check each service status. The `Active` field must report `active (running)`.
+     - If any of the services is not started, you can start it manually with the following command `sudo systemctl start <service name>`.
+ 3. Power on the µTCA crate. If the power cut was planned, undo the actions from the [previous section](#preparing-for-a-power-cut):
+     - Power on the µTCA crate Power Modules one at a time.
+     - Push the hot swap tab on the MCH and wait for the blue LED to turn off.
+     - Push the hot swap tabs on the AMC's and wait for the blue LED's to turn off.
+ 4. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot),
+ 5. For each CTP7 login as `texas` and execute: `killall rpcsvc`
      - Right now on boot the CTP7 linux core will start `rpcsvc` as the `texas` user and this is not gauranteed to have the correct `$ENV` for the `rpcmodules` on the card.
- 4. For each CTP7 login as `gemuser` and execute: `recover.sh`
+ 6. For each CTP7 login as `gemuser` and execute: `recover.sh`
      - Check to make sure `rpcsvc` is running as `gemuser` by executing `ps | grep rpcsvc`.  If `rpcsvc` is not running launch it manually as `gemuser` by executing: `rpcsvc`
      - Check to make sure `ipbus` is running as `gemuser` by executing `ps | grep ipbus`.  If `ipbus` is not running launch it manually as `gemuser` by executing: `ipbus`.
- 5. For each CTP7 from the DAQ machine try to read the FW address of the CTP7:
+ 7. For each CTP7 from the DAQ machine try to read the FW address of the CTP7:
      - Execute: `gem_reg.py`
      - From inside the `gem_reg.py` tool execute: `connect eagleXX` where `XX` is the number of the CTP7 of interest
      - From inside the `gem_reg.py` tool execute: `kw RELEASE` this should display the FW release of the CTP7, if `0xdeaddead` are shown for any entries of the CTP7 registers (e.g. those lines that do _**not**_ have `OHX` in the name for `X` some integer) the CTP7 is not programmed correctly.
