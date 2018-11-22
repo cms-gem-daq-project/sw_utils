@@ -738,15 +738,15 @@ cd /mnt/persistent/gemdaq/gemloader
 
 ## Preparing For a Power Cut
 
-In order to safely prepare a GEM test stand before a planned power cut execute:
+In order to safely prepare a GEM test stand for a planned power cut execute:
 
  1. Power down the High Voltage.
-     - Use the opportunity to power down other sensitive equipement such as PMT's.
+     - Use the opportunity to power down other sensitive equipment, such as PMT's.
  2. Power down the Low Voltage.
  3. Place the µTCA modules in extraction mode:
-     - Gently pull the hot swap tab on the AMC's (CTP7 and AMC13). Wait until the blue LED stays on solid on each AMC's.
+     - Gently pull the hot swap tab on all AMC's, including the AMC13. Wait until the blue LED stays on solid on each AMC's.
      - Gently pull the hot swap tab on the MCH. Again, wait until the blue LED stays solid on.
- 5. Power down the µTCA crate Power Modules one at a time. If powered with AC/DC converters, simply flip the switch on the AC/DC one at a time.
+ 5. Power down the µTCA crate Power Modules one at a time. Find the AC/DC converters powering the PM's and turn them off one at a time. They can either be built in the crate or external to the crate. In the first case, a switch is present on the crate front panel.
  6. Finally, power off the DAQ computer.
 
 ## Recovering From a Power Cut
@@ -756,12 +756,12 @@ To recover a GEM test stand after a power cut execute:
  1. Ensure the uTCA crate and associated hardware all have power.
      - E.g. the crate, network switches, DAQ computer, etc...
  2. Start the DAQ computer first, then:
-     - Ensure that the `sysmgr`, `xinetd` and `dnsmasq` services are correctly started. You can use the `systemctl status <service name> command to check each service status. The `Active` field must report `active (running)`.
+     - Ensure that the `sysmgr`, `xinetd` and `dnsmasq` services are correctly started. You can use the `systemctl status <service name>` command to check each service status. The `Active` field must report `active (running)`.
      - If any of the services is not started, you can start it manually with the following command `sudo systemctl start <service name>`.
  3. Power on the µTCA crate. If the power cut was planned, undo the actions from the [previous section](#preparing-for-a-power-cut):
      - Power on the µTCA crate Power Modules one at a time.
      - Push the hot swap tab on the MCH and wait for the blue LED to turn off.
-     - Push the hot swap tabs on the AMC's and wait for the blue LED's to turn off.
+     - Push the hot swap tabs on the AMC's, including the AMC13, and wait for the blue LED's to turn off.
  4. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot),
  5. For each CTP7 login as `texas` and execute: `killall rpcsvc`
      - Right now on boot the CTP7 linux core will start `rpcsvc` as the `texas` user and this is not gauranteed to have the correct `$ENV` for the `rpcmodules` on the card.
