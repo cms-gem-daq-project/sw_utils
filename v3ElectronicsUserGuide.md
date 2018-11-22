@@ -726,6 +726,7 @@ to match:
 q^A]q^B(]q^C(U^GGEM_AMCq^D(crw_reg
 ```
 Note **do not copy paste this, you _must_ manually type it**.  If you copy/paste you may insert a hidden unicode character (e.g. newline) that will cause the file to **not** be parsed correctly and any register access action will fail.
+
  28. As `gemuser` on the CTP7 load the new OH FW into the CTP7 RAM by executing: 
 ```bash
 cd /mnt/persistent/gemdaq/gemloader
