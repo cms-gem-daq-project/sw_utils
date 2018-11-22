@@ -186,7 +186,7 @@ If you need both a front-end link (or multiple links) and multiple AMC's in a uT
 
 Note the last entry *QC8 Data-Taking* implies all CTP7's in shelf01, the AMC13 in shelf01, *and* the uFEDKit. 
 
-Before trying to modify the above schedules you'll need to first create an account using the form [here](https://www.supersaas.com/accounts/new) (assuming you do not already have one). When scheduling you need to provide an estimate for:
+Before trying to modify the above schedules you'll need to first ask for an account to use our SuperSAAS scheduling tools.  To do this ask in the `System Setup` channel of the [GEM DAQ Mattermost Team](https://mattermost.web.cern.ch/signup_user_complete/?id=ax1z1hss5fdm8bpbx4hgpoc3ne). When scheduling you need to provide an estimate for:
 
 - Your name
 - Your email
