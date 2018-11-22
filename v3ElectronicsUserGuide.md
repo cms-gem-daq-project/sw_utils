@@ -170,9 +170,9 @@ If you need just a front-end link (or multiple links) on a given CTP7 and do not
 | BirdName | Schedule Page |
 | :------: | :------------ |
 | eagle26 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle26) |
-| eagle34 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle34) |
-| eagle60 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle60) |
-| eagle64 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle64) |
+| eagle34 | [CTP7-eagle34](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle34) |
+| eagle60 | [CTP7-eagle60](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle60) |
+| eagle64 | [CTP7-eagle64](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle64) |
 
 If you need both a front-end link (or multiple links) and multiple AMC's in a uTCA Crate (e.g. a single CTP7 and the AMC13) then use the following schedule links:
 
@@ -186,7 +186,7 @@ If you need both a front-end link (or multiple links) and multiple AMC's in a uT
 
 Note the last entry *QC8 Data-Taking* implies all CTP7's in shelf01, the AMC13 in shelf01, *and* the uFEDKit. 
 
-When scheduling you need to provide an estimate for:
+Before trying to modify the above schedules you'll need to first create an account using the form [here](https://www.supersaas.com/accounts/new) (assuming you do not already have one). When scheduling you need to provide an estimate for:
 
 - Your name
 - Your email
