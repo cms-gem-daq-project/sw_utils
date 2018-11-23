@@ -22,6 +22,7 @@ Table of Contents
          * [Updating the Linux Image on a CTP7](#updating-the-linux-image-on-a-ctp7)
          * [The rpcsvc Service](#the-rpcsvc-service)
             * [RPC Modules and the LMDB](#rpc-modules-and-the-lmdb)
+            * [Restarting syslogd](#restarting-syslogd)
          * [Using gem_reg.py](#using-gem_regpy)
             * [Getting Info About a Register](#getting-info-about-a-register)
             * [Updating the LMDB](#updating-the-lmdb)
@@ -564,6 +565,29 @@ tail -25 /var/log/messages
 ```
 
 This will display the last 25 lines in the log file on the CTP7 (executed as `gemuser` on the CTP7). Use the `tail` command similarly to view the log on the DAQ PC.
+
+#### Restarting `syslogd`
+
+In some weird cases `syslogd` will not be running after the CTP7 boots.  This will cause the log file:
+
+```
+/var/log/messages
+```
+
+To not be created or written to.  To resolve this ask your sysadmin to execute:
+
+```bash
+/sbin/syslogd -R 192.168.0.180 -L -s 1024 -b 8
+```
+
+And they should see the process running, e.g.
+
+```bash
+root@eagle63:~# ps l | grep syslog
+S     0  9161     1  2792    64 0:0   13:31 00:00:00 /sbin/syslogd -R
+192.168.0.180 -L -s 1024 -b 8
+S     0  9163  9146  2796   288 pts4  13:32 00:00:00 grep syslog
+```
 
 ### Using `gem_reg.py`
 
