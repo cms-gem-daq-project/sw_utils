@@ -121,7 +121,7 @@ It can be expected that you would need to configure the front-end electronics fo
 
 Moreover if you are not on the list of approved individuals who can modify the hardware/stand infrastructure you should not (if you are wondering if you are on this list it means you are *not*).
 
-Failure to follow these rules makes more work for the expert team, sysadmi/test stand responsible.  Failure to conform repeatedly will result in loss of access to the test stand.
+Failure to follow these rules makes more work for the expert team, sysadmin/test stand responsible.  Failure to conform repeatedly will result in loss of access to the test stand.
 
 Once you realize this you should:
 
@@ -135,7 +135,7 @@ The following 904 test stands exist.
 | Stand | Location | Purpose |
 | :---: | :------: | :------ |
 | Coffin | Integration Side of 904 | General purpose debugging station. Supports P5 operation, general software development, firmware testing, and trigger development.  Only place combined ME1/1+GE1/1 runs can be taken. |
-| V3 Electronics R&D | GEM 904 Lab | Dedicated to testing sustained operation of GE1/1 detectora. | 
+| V3 Electronics R&D | GEM 904 Lab | Dedicated to testing sustained operation of GE1/1 detectors. | 
 | QC8 | GEM 904 Lab | Production test stand for GE1/1 qualification. |
 
 Unless you are involved in, or performing a test for, the sustained operations group or QC8 for GE1/1 qualification you should default to using the "Coffin" setup.
@@ -188,11 +188,11 @@ If you need both a front-end link (or multiple links) and multiple AMC's in a uT
 
 Note the last entry *QC8 Data-Taking* implies all CTP7's in shelf01, the AMC13 in shelf01, *and* the uFEDKit. 
 
-Before trying to modify the above schedules you'll need to first ask for an account to use our SuperSAAS scheduling tools.  To do this ask in the `System Setup` channel of the [GEM DAQ Mattermost Team](https://mattermost.web.cern.ch/signup_user_complete/?id=ax1z1hss5fdm8bpbx4hgpoc3ne). When scheduling you need to provide an estimate for:
+Before trying to modify the above schedules you'll need to first ask for the GEM 904 Shared User Password on SuperSAAS to use the scheduling tools.  To do this ask in the `System Setup` channel of the [GEM DAQ Mattermost Team](https://mattermost.web.cern.ch/signup_user_complete/?id=ax1z1hss5fdm8bpbx4hgpoc3ne). When scheduling you need to provide an:
 
 - Your name
 - Your email
-- Time your test will take (starting & ending time),
+- Estimated time your test will take (starting & ending time),
 - Phone number you are reachable at while using the test stand, and
 - Description of your test.
 
@@ -1854,8 +1854,8 @@ The key values of the `chamber_config`, `GEBtype` and `chamber_vfatMask` are alw
 
 Once the dictionaries in `chamberInfo.py` are correctly configured, see:
 
- - [Using `chamber_vfatDACSettings` to write common register values], and
- - [The Mapping File: `chamberInfo.py]
+ - [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values), and
+ - [The Mapping File: `chamberInfo.py](#the-mapping-file-chamberinfopy)
 
 You're now able to use the command line interface tool `run_scans.py` for automatically launching scan applications for your test stand.  The `run_scan.py` will for each uncommented link (optohybrid number) in `chamber_config` dictionary:
 
