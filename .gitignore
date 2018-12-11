@@ -29,6 +29,11 @@
 !scripts/makeNewConfig.sh
 !scripts/setup_gemdaq.sh
 
+# Don't ignore profiles
+!*.aliases
+!*.bash_profile
+!*.bashrc
+
 # Don't ignore build config directory
 !config
 
