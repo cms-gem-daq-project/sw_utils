@@ -1,0 +1,11 @@
+# common function calls
+alias ll='ls -lhtr'
+alias rm='mv -t "$@" ~/.Trash'
+
+# GEM DAQ function calls
+#alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe -i gem.shelf01.amc13 -c $GEM_ADDRESS_TABLE_PATH/connections.xml'
+alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
+alias editConfig='vim /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py'
+
+# ROOT calls
+alias root="root -l"
