@@ -88,6 +88,7 @@ Table of Contents
       * [Reading a Register Repeatedly](#reading-a-register-repeatedly)
    * [Configuring a Detector](#configuring-a-detector)
       * [Using chamber_vfatDACSettings to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)
+      * [Using replace_parameter.sh to update the register values in the ctp7 config files](#using-replace_parametersh-to-update-the-register-values-in-the-ctp7-config-files)
    * [Taking Calibration &amp; Commissioning Data](#taking-calibration--commissioning-data)
       * [Getting the VFAT Mask: getVFATMask.py](#getting-the-vfat-mask-getvfatmaskpy)
       * [The Mapping File: `chamberInfo.py](#the-mapping-file-chamberinfopy)
@@ -1804,6 +1805,28 @@ With these settings a call of `confChamber.py` will overwrite the values of:
  - `CFG_CAP_PRE`
 
 registers in the [Configuration File on CTP7](#configuration-file-on-ctp7) for all VFATs for optohybrids 0 through 2.
+
+## Using `replace_parameter.sh` to update the register values in the ctp7 config files
+
+A script also exists to help modify the text files in `/mnt/persistent/gemdaq/vfat3/` that list the register values. The script, `replace_paramater.sh`, will overwrite the value for one register for all or any subset of the VFATs. It can take a value argument and write a single value to all VFATs or it can take an filename argument and write potentially different values to each VFAT, based on the contents of the file whose format is the same as the output of `anaDACScan.py`:
+
+Value argument example:
+```
+eagle64:~$ ./replace_parameter.sh BIAS_PRE_VREF 0 15
+```
+
+Filename argument example:
+```
+eagle64:~$ ./replace_parameter.sh -f ~/NominalDACValues_GE11-X-S-INDIA-0002/2018.10.31.14.27/NominalDACValues.txt BIAS_PRE_VREF 0
+```
+
+In the value argument example, the value of the register `BIAS_PRE_VREF` is replaced by `15` in all of the VFAT config files for OH `0`.
+
+In the filename argument example, each line of the file is parsed, and if, for example, one line of the file is `6 102`, then the value of the register `BIAS_PRE_VREF` is replaced by `102` in the config file for VFAT `6`.
+
+The script must be run as user `texas` in order to have permission to edit the register configuration files.
+
+Running `replace_parameter.sh` only updates the text files on the ctp7. It does not by itself change the register values in the VFATs. After running `replace_parameter.sh` the updated register values will be loaded into the VFATs the next time that `confChamber.py` is run.
 
 # Taking Calibration & Commissioning Data
 --------------------
