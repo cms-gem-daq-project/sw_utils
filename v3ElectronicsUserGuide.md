@@ -1348,7 +1348,19 @@ Typical causes of bad communication are:
 
 ### Configuration File on CTP7
 
-The `confChamber.py` tool, see [Configuring a Detector](#configuring-a-detector), can be used to apply a common DAC setting to *all* VFATs for a given register.  However to apply a unique, per VFAT, value to a given register presently the VFAT configuration file on the CTP7 must be manually edited, an example is shown below:
+The `confChamber.py` tool, see [Configuring a Detector](#configuring-a-detector), can be used to apply a common DAC setting to *all* VFATs for a given register.  
+
+The script `replace_paramater.sh` can be used to apply a unique, per VFAT, value to a given register. The script must be run as user `texas` on the ctp7 in order to have permission to edit the configuration files. The per VFAT mode of the script is invoked with
+```
+./replace_parameter.sh -f <FILENAME> <REGISTER> <LINK>
+```
+where the input file format is the same as the output of `anaDACScan.py`. As an example
+```
+./replace_parameter.sh -f ~/NominalDACValues_GE11-X-S-INDIA-0002/2018.10.31.14.27/NominalDACValues.txt BIAS_PRE_VREF 0
+```
+will cause each line of the file ` ~/NominalDACValues_GE11-X-S-INDIA-0002/2018.10.31.14.27/NominalDACValues.txt` to be parsed, and if, for example, one line of the file is `6 102`, then the value of the register `BIAS_PRE_VREF` will be replaced by `102` in the config file for VFAT `6`.
+
+The VFAT configuration files can also be manually edited, an example is shown below:
 
 ```bash
 eagle26:/mnt/persistent/gemdaq$ more vfat3/config_OH3_VFAT9_cal.txt
@@ -1758,7 +1770,7 @@ This will issue an RPC call to the CTP7 whose network alias is `cardName` and lo
 
 ## Using `chamber_vfatDACSettings` to write common register values
 
-While some registers must be set by hand since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
+While some registers must be set by hand or by the `replace_parameter.sh` script described in [Configuration File on CTP7](#configuration-file-on-ctp7) since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
 
 ```bash
 % ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
@@ -1803,7 +1815,8 @@ With these settings a call of `confChamber.py` will overwrite the values of:
  - `CFG_RES_PRE`, and
  - `CFG_CAP_PRE`
 
-registers in the [Configuration File on CTP7](#configuration-file-on-ctp7) for all VFATs for optohybrids 0 through 2.
+registers in the [Configuration File on CTP7](#configuration-file-on-ctp7) for all VFATs for optohybrids 0 through 2. 
+
 
 # Taking Calibration & Commissioning Data
 --------------------
