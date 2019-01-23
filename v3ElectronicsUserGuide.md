@@ -163,30 +163,11 @@ When using a test stand you should:
 
 ## Requesting Time on GEM Test Stands
 
-Each stand has it's own requisition page on SuperSAAS to manage testing and ensure we do not collide with other users.
+Each stand has it's own requisition page on SuperSAAS to manage testing and ensure we do not collide with other users.  To see the available test stands and to request time on nagivate to:
+
+https://www.supersaas.com/schedule/GEM_904_Infrastructure
 
 If you need time on a particular setup you need to understand what hardware you will be using.  Will this be just the front-end(s) on a given link? In this case you'll need time on the AMC in question.  Will testing involved the front-end being triggered from a trigger source coming from AMC13? Then you'll need time on the uTCA crate in question.
-
-If you need just a front-end link (or multiple links) on a given CTP7 and do not plan to use any additional hardware (e.g. triggers generated from an AMC13) then use the following schedule links:
-
-| BirdName | Schedule Page |
-| :------: | :------------ |
-| eagle26 | [CTP7-eagle26](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle26) |
-| eagle34 | [CTP7-eagle34](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle34) |
-| eagle60 | [CTP7-eagle60](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle60) |
-| eagle64 | [CTP7-eagle64](https://www.supersaas.com/schedule/GEM_904_Infrastructure/CTP7-eagle64) |
-
-If you need both a front-end link (or multiple links) and multiple AMC's in a uTCA Crate (e.g. a single CTP7 and the AMC13) then use the following schedule links:
-
-| Crate Name | Schedule Page |
-| :--------: | :------------ |
-| Integration Shelf 01 | [904 Integration Shelf 01](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_Integration_uTCA_Shelf_01) |
-| Integration Shelf 02 | [904 Integration Shelf 02](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_Integration_uTCA_Shelf_02) |
-| QC8 Shelf 01 | [904_QC8_uTCA_Shelf_01](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_QC8_uTCA_Shelf_01) |
-| QC8 Shelf 02 | [904_QC8_uTCA_Shelf_02](https://www.supersaas.com/schedule/GEM_904_Infrastructure/904_QC8_uTCA_Shelf_02) |
-| QC8 Data-Taking | [QC8 Data Taking](https://www.supersaas.com/schedule/GEM_904_Infrastructure/QC8-Data-Taking) |
-
-Note the last entry *QC8 Data-Taking* implies all CTP7's in shelf01, the AMC13 in shelf01, *and* the uFEDKit. 
 
 Before trying to modify the above schedules you'll need to first ask for the GEM 904 Shared User Password on SuperSAAS to use the scheduling tools.  To do this ask in the `System Setup` channel of the [GEM DAQ Mattermost Team](https://mattermost.web.cern.ch/signup_user_complete/?id=ax1z1hss5fdm8bpbx4hgpoc3ne). When scheduling you need to provide an:
 
@@ -197,8 +178,6 @@ Before trying to modify the above schedules you'll need to first ask for the GEM
 - Description of your test.
 
 Your request will be submitted and then approved. Note you may only use the stand once the request has been *approved*.  Once your request has been approved and you start using the stand you still are require to make an elog entry documenting the actiosn you have taken, their outcome, and relevant commands, etc...
-
-The full list of GEM 904 hardware scheduling is available [here](https://www.supersaas.com/schedule/GEM_904_Infrastructure/).
 
 # Back-end Electronics
 --------------------
