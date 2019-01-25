@@ -1329,7 +1329,7 @@ Typical causes of bad communication are:
 
 The `confChamber.py` tool, see [Configuring a Detector](#configuring-a-detector), can be used to apply a common DAC setting to *all* VFATs for a given register.  
 
-The script `replace_paramater.sh` can be used to apply a unique, per VFAT, value to a given register. The script must be run as user `texas` on the ctp7 in order to have permission to edit the configuration files. The per VFAT mode of the script is invoked with
+The script `replace_paramater.sh` can be used to apply a unique, per VFAT, value to a given register. The script must be run as user `gemuser` on the ctp7 in order to have permission to edit the configuration files. The per VFAT mode of the script is invoked with
 ```
 ./replace_parameter.sh -f <FILENAME> <REGISTER> <LINK>
 ```
