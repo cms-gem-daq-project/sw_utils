@@ -1,26 +1,20 @@
 #!/bin/bash -e
 
 helpstring="
-Processes chunk files found in $DATA_PATH/Cosmics (or provided -p argument) with either the unpacker (flag -u) or the light dqm (flag -a).
-        Usage: mergeFiles.sh [options] [ -a | -u ]
+Individually processes chunk files found in $DATA_PATH/Cosmics (or provided -p argument) with the unpacker, adds the output raw.root files together, and then processes this final file with the light dqm.
+        Usage: mergeFiles.sh [options]
         Options:
-            -a the script will perform the dqm analysis
             -d provide debugging information
             -i initial chunk number to consider, defaults to 0
-            -f final chunk number to consider
+            -f final chunk number to consider, if not provided all chunk files will be processed
             -h prints this menu and exits
             -p path to datafiles of the form 'runXXXXXX_Cosmic_CERNQC8_YYYY-MM-DD_chunk_*.dat'
-            -r run number of interest
-            -u the script will perform the unpacking"
+            -r run number of interest"
 
 # Set Defaults
-ADDHISTOS=""
-CMD=""
 FILEPATH="$DATA_PATH/Cosmics"
 DEBUG=""
-OPTION=""
 RUNNUMBER=""
-FILEEXT=""
 INITIALCHUNK=$((0))
 FINALCHUNK=$((-1))
 
@@ -29,10 +23,6 @@ OPTIND=1
 while getopts ":p:r:i:f:hdau" opts
 do
     case $opts in
-        a)
-            ADDHISTOS="true"
-            CMD="dqm"
-            FILEEXT="raw.root";;
         p) 
             FILEPATH="$OPTARG";;
         r)
@@ -41,10 +31,6 @@ do
             INITIALCHUNK="$OPTARG";;
         f)
             FINALCHUNK="$OPTARG";;
-        u)
-            CMD="unpacker"
-            OPTION="sdram"
-            FILEEXT="dat";;
         d)
             DEBUG="true";;
         h)
@@ -65,21 +51,10 @@ unset OPTIND
 
 if [ -n "$DEBUG" ]
 then
-    echo 
-    echo CMD ${CMD}
     echo FILEPATH ${FILEPATH}
-    echo OPTION ${OPTION}
     echo RUNNUMBER ${RUNNUMBER}
-    echo FILEEXT ${FILEEXT}
     echo INITIALCHUNK ${INITIALCHUNK}
     echo FINALCHUNK ${FINALCHUNK}
-fi
-
-if [ -z "$CMD" ]
-then
-    echo "You must supply either option '-a' or '-u'"
-    echo ${helpstring}
-    kill -INT $$;
 fi
 
 # Create the run number string
@@ -99,19 +74,8 @@ else
     RUNSTRING="00000${RUNNUMBER}"
 fi
 
-#OUTPUTFILENAME=$(ls ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat | grep "chunk_0.dat")
-#OUTPUTFILENAME="${OUTPUTFILENAME%"_chunk_0.dat"}.dat"
-#
-#if [ -f ${OUTPUTFILENAME} ]; then
-#    echo "file ${OUTPUTFILENAME} exists already"
-#    echo "to prevent event duplication I am deleting it"
-#    echo "rm ${OUTPUTFILENAME}"
-#    rm ${OUTPUTFILENAME}
-#fi
-
 # Loop over files found in FILEPATH
-#for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat
-for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.${FILEEXT}
+for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat
 do
     chunkNumber=$(echo $file 2>/dev/null | awk -F _ '{ print $6 }' 2>/dev/null | awk -F . '{print $1}' )
 
@@ -133,38 +97,50 @@ do
         fi
     fi
 
-    #echo "cat ${file} >> ${OUTPUTFILENAME}"
-    #cat ${file} >> ${OUTPUTFILENAME} 
     if [ -n "$DEBUG" ]; then
-        echo "${CMD} ${file} ${OPTION}"
+        echo "unpacker ${file} sdram"
     else
-        echo "${CMD} ${file} ${OPTION}"
-        ${CMD} ${file} ${OPTION}
+        echo "unpacker ${file} sdram"
+        unpacker ${file} sdram
     fi
 
-    if [ -n "$ADDHISTOS" ]; then
-        FILELIST="${FILELIST} ${file}"
-    fi 
+    thisRawFile="${file%".dat"}.raw.root"
+    FILELIST="${FILELIST} ${thisRawFile}"
 done
 
-if [ -n "$ADDHISTOS" ]; then
-    OUTPUTFILENAME=$(ls ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.${FILEEXT} | grep "chunk_0.${FILEEXT}")
-    OUTPUTFILENAME="${OUTPUTFILENAME%"_chunk_0.{$FILEEXT}"}.${FILEEXT}"
-    
-    if [ -f ${OUTPUTFILENAME} ]; then
-        echo "file ${OUTPUTFILENAME} exists already; deleting it"
-        echo "rm ${OUTPUTFILENAME}"
-        rm ${OUTPUTFILENAME}
-    fi
+echo "Finished unpacker loop, now adding raw files together"
 
+# Add raw.root files together
+FINALRAWFILE=$(ls ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.raw.root | grep "chunk_${INITIALCHUNK}.raw.root")
+FINALRAWFILE="${FINALRAWFILE%"_chunk_${INITIALCHUNK}.raw.root"}.raw.root"
+
+if [ -n "$DEBUG" ]; then
     echo ""
-    echo "hadd -k ${OUTPUTFILENAME} ${FILELIST}"
+    echo "hadd -k ${FINALRAWFILE} ${FILELIST}"
     echo ""
+else
+    if [ -f ${FINALRAWFILE} ]; then
+        echo "file ${FINALRAWFILE} exists already; deleting it"
+        echo "rm ${FINALRAWFILE}"
+        rm ${FINALRAWFILE}
+    fi
+    hadd -k ${FINALRAWFILE} ${FILELIST}
 fi
 
-#echo ""
-#echo "Your file can be found at:"
-#echo ""
-#echo    ${OUTPUTFILENAME}
-#echo ""
+echo "Finished adding raw files together, now running dqm"
+
+if [ -n "$DEBUG" ]; then
+    echo "dqm ${FINALRAWFILE}"
+else
+    echo "dqm ${FINALRAWFILE}"
+    dqm ${FINALRAWFILE}
+fi
+
+FINALANAFILE="${FINALRAWFILE%".raw.root"}.analyzed.root"
+
+echo ""
+echo "Your file can be found at:"
+echo ""
+echo    ${FINALANAFILE}
+echo ""
 echo "Done"
