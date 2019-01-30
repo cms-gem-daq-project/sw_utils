@@ -4,7 +4,7 @@ helpstring="
 Individually processes chunk files found in $DATA_PATH/Cosmics (or provided -p argument) with the unpacker, adds the output raw.root files together, and then processes this final file with the light dqm.
         Usage: mergeFiles.sh [options]
         Options:
-            -d provide debugging information
+            -d Outputs commands that will be executed, nothing is produced
             -i initial chunk number to consider, defaults to 0
             -f final chunk number to consider, if not provided all chunk files will be processed
             -h prints this menu and exits
