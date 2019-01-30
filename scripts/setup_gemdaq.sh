@@ -329,6 +329,10 @@ then
     export PATH=/opt/reg_utils/bin:$PATH
     export PATH=/opt/xhal/bin/:$PATH
 
+    # Add LDQM tools to PATH
+    export PATH=${BUILD_HOME}/gem-light-dqm/dqm-root/bin:$PATH
+    export PATH=${BUILD_HOME}/gem-light-dqm/gemtreewriter/bin:$PATH
+
     # Firmware
     export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
 
