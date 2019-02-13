@@ -77,7 +77,7 @@ fi
 # Loop over files found in FILEPATH
 for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat
 do
-    chunkNumber=$(echo $file 2>/dev/null | awk -F _ '{ print $6 }' 2>/dev/null | awk -F . '{print $1}' )
+    chunkNumber=$(echo $file 2>/dev/null | awk -F _ '{ print $7 }' 2>/dev/null | awk -F . '{print $1}' )
 
     # Skip chunk files below initial number
     if (( ${chunkNumber} < ${INITIALCHUNK} )); then
