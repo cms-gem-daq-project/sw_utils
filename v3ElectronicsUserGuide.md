@@ -770,7 +770,8 @@ To recover a GEM test stand after a power cut execute:
  4. Enter the AMC13 tool and enable clocks to the AMC of interest by following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot),
  5. For each CTP7 login as `texas` and execute: `killall rpcsvc`
      - Right now on boot the CTP7 linux core will start `rpcsvc` as the `texas` user and this is not gauranteed to have the correct `$ENV` for the `rpcmodules` on the card.
- 6. For each CTP7 login as `gemuser` and execute: `recover.sh`
+ 6. For each CTP7 login as `gemuser` and execute the step: `recover.sh`
+     - Check to make sure that all values in the `GTH Status` column are `0x7`.  If not you will need to [Reload the CTP7 FW](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#v3-hardware) until all `GTH Status` column values are `0x7`.
      - Check to make sure `rpcsvc` is running as `gemuser` by executing `ps | grep rpcsvc`.  If `rpcsvc` is not running launch it manually as `gemuser` by executing: `rpcsvc`
      - Check to make sure `ipbus` is running as `gemuser` by executing `ps | grep ipbus`.  If `ipbus` is not running launch it manually as `gemuser` by executing: `ipbus`.
  7. For each CTP7 from the DAQ machine try to read the FW address of the CTP7:
