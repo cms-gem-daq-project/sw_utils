@@ -34,71 +34,76 @@ then
     return
 fi
 
-echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee listOfScanDates_calibrateArmDac_${DETECTOR}.txt
+echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
+
+scandate=$(date +%Y.%m.%d.%H.%M)
 
 runNum=0
 for armDacVal in $(echo $LIST_ARM_DAC | sed "s/,/ /g")
 do
-    if [ -e scurveLog_ArmDac_${armDacVal}.txt ]
+    if [ -e ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt ]
     then
-        rm scurveLog_ArmDac_${armDacVal}.txt
+        rm ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     fi
 
     echo "=============Run $runNum============="
     echo "Issuing a link reset before CFG_THR_ARM_DAC=${armDacVal}"
-    echo "gem_reg.py -n ${CARDNAME} -e write 'GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1' 2>&1 | tee scurveLog_ArmDac_${armDacVal}.txt"
-    gem_reg.py -n ${CARDNAME} -e write "GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1" 2>&1 | tee scurveLog_ArmDac_${armDacVal}.txt
+    echo "gem_reg.py -n ${CARDNAME} -e write 'GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1' 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    gem_reg.py -n ${CARDNAME} -e write "GEM_AMC.GEM_SYSTEM.CTRL.LINK_RESET 1" 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "Configuring Detector for CFG_THR_ARM_DAC=${armDacVal}"
-    echo "confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
     
     echo "Writing configuration for CFG_THR_ARM_DAC=${armDacVal} to file"
-    echo "gem_reg.py -n ${CARDNAME} -e kw 'GEM_AMC.OH.OH${LINK}.GEB.VFAT0.CFG_' 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    echo "Configuration of All VFATs:" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    gem_reg.py -n ${CARDNAME} -e kw "GEM_AMC.OH.OH${LINK}.GEB.VFAT0.CFG_" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "gem_reg.py -n ${CARDNAME} -e kw 'GEM_AMC.OH.OH${LINK}.GEB.VFAT0.CFG_' 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    echo "Configuration of All VFATs:" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
+    gem_reg.py -n ${CARDNAME} -e kw "GEM_AMC.OH.OH${LINK}.GEB.VFAT0.CFG_" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "Writing IREF configuration for CFG_THR_ARM_DAC=${armDacVal} to file"
-    echo "gem_reg.py -n ${CARDNAME} -e rwc 'GEM_AMC.OH.OH${LINK}.GEB.VFAT*.CFG_IREF' 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    echo "CFG_IREF of All VFATs:" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    gem_reg.py -n ${CARDNAME} -e rwc "GEM_AMC.OH.OH${LINK}.GEB.VFAT*.CFG_IREF" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "gem_reg.py -n ${CARDNAME} -e rwc 'GEM_AMC.OH.OH${LINK}.GEB.VFAT*.CFG_IREF' 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    echo "CFG_IREF of All VFATs:" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
+    gem_reg.py -n ${CARDNAME} -e rwc "GEM_AMC.OH.OH${LINK}.GEB.VFAT*.CFG_IREF" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
-    scandate=$(date +%Y.%m.%d.%H.%M)
-    echo "Making Directory: ${DATA_PATH}/${DETECTOR}/scurve/${scandate}"
-    echo "mkdir -p ${DATA_PATH}/${DETECTOR}/scurve/${scandate}"
-    mkdir -p ${DATA_PATH}/${DETECTOR}/scurve/${scandate}
+    scurve_scandate=$(date +%Y.%m.%d.%H.%M)
+    echo "Making Directory: ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
+    echo "mkdir -p ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
+    mkdir -p ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}
     echo "unlink ${DATA_PATH}/${DETECTOR}/scurve/current"
     unlink ${DATA_PATH}/${DETECTOR}/scurve/current
-    echo "ln -sf ${DATA_PATH}/${DETECTOR}/scurve/${scandate} ${DATA_PATH}/${DETECTOR}/scurve/current"
-    ln -sf ${DATA_PATH}/${DETECTOR}/scurve/${scandate} ${DATA_PATH}/${DETECTOR}/scurve/current
+    echo "ln -sf ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate} ${DATA_PATH}/${DETECTOR}/scurve/current"
+    ln -sf ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate} ${DATA_PATH}/${DETECTOR}/scurve/current
 
     echo "Adding Entry to listOfScanDates_calibrateArmDac_${DETECTOR}.txt"
-    echo -e "${DETECTOR}\t${scandate}\t${armDacVal}" 2>&1 | tee -a listOfScanDates_calibrateArmDac_${DETECTOR}.txt
+    echo -e "${DETECTOR}\t${scurve_scandate}\t${armDacVal}" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
 
     echo "Launching scurve for CFG_THR_ARM_DAC=${armDacVal}"
-    echo "Scurve Output for scandate: ${scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    echo "ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "Scurve Output for scandate: ${scurve_scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "Analyzing results"
-    echo "Analysis Log for scandate: ${scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "Analysis Log for scandate: ${scurve_scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
+    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
-    echo "granting permissions to ${DATA_PATH}/${DETECTOR}/scurve/${scandate}"
-    echo "chmod g+rw -R ${DATA_PATH}/${DETECTOR}/scurve/${scandate}"
-    chmod g+rw -R ${DATA_PATH}/${DETECTOR}/scurve/${scandate}
+    echo "granting permissions to ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
+    echo "chmod g+rw -R ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
+    chmod g+rw -R ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}
 
     runNum=$(($runNum + 1))
 done
 
-echo "calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee armDacCalLog_${DETECTOR}.txt"
-calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee armDacCalLog_${DETECTOR}.txt
+echo "calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/armDacCalLog_${DETECTOR}.txt"
+
+export ELOG_PATH = ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/
+
+calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/armDacCalLog_${DETECTOR}.txt
 
 echo "Finished running all scans"
