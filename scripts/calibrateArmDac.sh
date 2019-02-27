@@ -38,6 +38,7 @@ echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee ${DATA_PATH}/${DETEC
 
 scandate=$(date +%Y.%m.%d.%H.%M)
 mkdir -p ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
+ln -s ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate} ${DATA_PATH}/${DETECTOR}/armDacCal/current
 
 runNum=0
 for armDacVal in $(echo $LIST_ARM_DAC | sed "s/,/ /g")
