@@ -37,6 +37,7 @@ fi
 echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
 
 scandate=$(date +%Y.%m.%d.%H.%M)
+mkdir -p ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
 
 runNum=0
 for armDacVal in $(echo $LIST_ARM_DAC | sed "s/,/ /g")
@@ -107,3 +108,5 @@ export ELOG_PATH = ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/
 calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/armDacCalLog_${DETECTOR}.txt
 
 echo "Finished running all scans"
+
+chmod g+rw -R ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
