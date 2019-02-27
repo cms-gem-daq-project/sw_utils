@@ -59,7 +59,7 @@ do
     i=0; for vfat in $mask_as_array; do echo $vfat; if [ $vfat == 0 ]; then first_unmasked_vfat=$i; break; fi; i=$(($i+1)) done;
     
     echo "Writing configuration for CFG_THR_ARM_DAC=${armDacVal} to file"
-    echo "gem_reg.py -n ${CARDNAME} -e kw 'GEM_AMC.OH.OH${LINK}.GEB.VFAT0.CFG_' 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    echo "gem_reg.py -n ${CARDNAME} -e kw 'GEM_AMC.OH.OH${LINK}.GEB.VFAT${first_unmasked_vfat}.CFG_' 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
     echo "Configuration of All VFATs:" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     gem_reg.py -n ${CARDNAME} -e kw "GEM_AMC.OH.OH${LINK}.GEB.VFAT${first_unmasked_vfat}.CFG_" 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
