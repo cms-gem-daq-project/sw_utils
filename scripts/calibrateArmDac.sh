@@ -90,8 +90,8 @@ do
 
     echo "Analyzing results"
     echo "Analysis Log for scandate: ${scurve_scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt"
+    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "granting permissions to ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
