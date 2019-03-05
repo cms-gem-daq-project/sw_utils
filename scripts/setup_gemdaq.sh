@@ -1,23 +1,11 @@
 # Detect when we're not being sourced, print a hint and exit
 # Based on https://stackoverflow.com/questions/2683279/how-to-detect-if-a-script-is-being-sourced#34642589
-if ! $(return >/dev/null 2>&1);
+# When "return" fails (ie if not sourced), an error message is printed and
+# caught by the if clause.
+# In the normal mode of operation (ie if sourced), "return" is silent
+if [[ ! -z "$(return 2>&1)" ]];
 then
     echo >&2 "ERROR: You must use \"source $0\" to run this script."
-
-    # Unfortunately the detection isn't reliable. Try to get more information
-    echo >&2
-    echo >&2 "If you used \"source $0\", please add a comment here:"
-    echo >&2 "    https://github.com/cms-gem-daq-project/sw_utils/issues/3"
-    echo >&2 "I generated some debugging information for you in $PWD/setup_gemdaq.debug"
-    echo >&2 "Please add it to your comment."
-
-    echo "ENV:\n" >$PWD/setup_gemdaq.debug
-    env >>$PWD/setup_gemdaq.debug
-    echo "\nSHELL OPTIONS: $-" >>$PWD/setup_gemdaq.debug
-
-    $(return >/dev/null 2>&1)
-    echo "\nRET STATUS: $?" >>$PWD/setup_gemdaq.debug
-
     kill -INT $$
 fi
 
@@ -322,28 +310,63 @@ then
     fi
 elif [[ $SYSTEM_INFO == *"gem904"* ]];
 then
-    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
-    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
-    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
+    # System Paths
     export AMC13_ADDRESS_TABLE_PATH=/opt/cactus/etc/amc13/
+    export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
+    export GBT_SETTINGS=/data/bigdisk/GEMDAQ_Documentation/system/OptoHybrid/V3/GBT_Files/
+    export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
+    export REPO_PATH=/data/bigdisk/sw/gemonlinesw/repos/
+
+    # Setup LD_LIBARY_PATH
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+
+    # Add hardware access tools to PATH
+    export PATH=/opt/cactus/bin/amc13/:$PATH
+    export PATH=/opt/reg_utils/bin:$PATH
+    export PATH=/opt/xhal/bin/:$PATH
+
+    # Add LDQM tools to PATH
+    export PATH=${BUILD_HOME}/gem-light-dqm/dqm-root/bin:$PATH
+    export PATH=${BUILD_HOME}/gem-light-dqm/gemtreewriter/bin:$PATH
 
     # Firmware
     export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
-
-    # AMC13 Tool
-    alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe'
-    alias AMC13ToolQC8='/opt/cactus/bin/amc13/AMC13Tool2.exe -c  192.168.2.104/c'
 
     # xDAQ
     alias xdaq=/opt/xdaq/bin/xdaq.exe
 
     # Misc
     #alias arp-scan='sudo /usr/sbin/arp-scan'
+    alias arp-scan='ip n show dev "$@" to 192.168.0.0/16'
+    alias editConfig='vim $VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py'
     alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
+
+    # fedKit on gem904daq04
+    if [[ $SYSTEM_INFO == *"gem904daq04"* ]];
+    then
+        export PATH=/opt/xdaq/bin:$PATH
+    fi
 elif [[ $SYSTEM_INFO == *"srv-s2g18"* || $SYSTEM_INFO == *"kvm"* ]];
 then
+    # System Paths
     export DATA_PATH=/gemdata
+
+    # Setup LD_LIBARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
+
+    # Add hardware access tools to PATH
+    export PATH=/opt/cactus/bin/amc13/:$PATH
+    export PATH=/opt/xhal/bin/:$PATH
+    export PATH=/opt/reg_utils/bin:$PATH
 fi
 
 # Setup path
