@@ -690,6 +690,8 @@ Again, it is critical to ensure that all `GTH Status` values (0 through 35) retu
 
 An example of a successful recovery is illustrated in this [elog entry](http://cmsonline.cern.ch/cms-elog/1060543).
 
+Note that if you are calling this after the card has been rebooted or power cycled you should ensure the `texas` account is not the owner of the `rpcsvc` service.  You might have to login as the `texas` account and issue `killall rpcsvc` then logout and login under the `gemuser` account to issue the recover command.
+
 ### To Update OH FW on CTP7
 
 The following requires knowledge of the `root` password of the CTP7.  If you do not know the `root` password you should not be executing this procedure.  Please call the sysadmin of your test stand and ask to have this done for you.
