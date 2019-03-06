@@ -1734,6 +1734,70 @@ This will read register `REGISTER_NAME` `X` times, pausing `Y` microseconds betw
 # Configuring a Detector
 --------------------
 
+## Using `testConnectivity.py` to Configure a Detector (Recommended)
+
+The `testConnectivity.py` script is a routine which allows you to establish communication with the frontend electronics for one or more detectors.  It can be used to automatically scan all VFAT3 DACs involved in the analog portion of the front-end; it will also automatically analyze this data to determine the correct DAC settings needed to determine the proper bias current and voltages for each DAC.  Finally, it can be used to automatically launch an scurve and analyze the data.
+
+### Routine to Establish Communication w/Detectors
+
+Assuming your back-end electronics are setup correctly you can configure the front-end electronics by executing the following steps:
+
+1. Power the LV of your detector(s),
+2. Determine the `shelf` number of your uTCA crate,
+3. Determine the `SLOT` of your AMC in the uTCA crate with the shelf number from step 2,
+2. Determine the `ohMask` of your detector(s) on your AMC in slot `SLOT`,
+   - Here the `ohMask` is a 12 bit number where a 1 in the N^th bit means "consider this OH."  So an `ohMask = 0xc4c` would mean to use OH's 2, 3, 6, 10 and 11.
+3. The execute:
+
+```bash
+testConnectivity.py -o OHMASK --shelf=1 --slot=SLOT --skipDACScan --skipScurve --nPhaseScans=100 2>&1 | tee connectivityLog.log
+```
+
+For each OH in `ohMask` this will:
+
+1. Check GBT communication & program GBTs,
+2. Check SCA communication & Reset SCAs,
+3. Program FPGA & Check Communication,
+   - Note this will issue a TTC hard reset to all OH's on the AMC in question; this will *wipe* out the frontend configuration and kill any running scan and stop any data-taking process.
+4. Scan GBT Phases & Set Each VFAT to a good phase, and
+5. Synchronize all VFATs and check VFAT communication.
+
+If you would like to start at a later step use the option `-f X` where `X` is the desired starting step, e.g. `-f 3` will start by programming the FPGA and checking FPGA communication (in this case it would be assumed that steps 1 & 2 have been completed by an earlier call of `testConnectivity.py` or by manual intervention).
+
+You can add the option `-i` to ignore VFAT synchronization errors.
+
+You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
+
+```bash
+confChamber.py cardName -gX
+```
+
+### Automatic DAC Scan, Analysis & Upload of Parameters
+
+First upload the correct `CFG_IREF` values to the VFAT3 configuration files on the CTP7 in slot `SLOT` and prepare the `ADC0` calibration file under `${DATA_PATH}/${DETECTOR_SER_NO}/calFile_ADC0_{DETECTOR_SER_NO}.txt` for each detector defined in [chamber_config](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#the-mapping-file-chamberinfopy) dictionary. Note if the VFAT3's you're using have their chipID encoded with the [Reed-Muller Encoding Algorithm](https://en.wikipedia.org/wiki/Reed%E2%80%93Muller_code) and they are found in the VFAT3 production DB then you do not need to upload the `CFG_IREF` values yourself or prepare the `calFile_ADC0_{DETECTOR_SER_NO}.txt` file as this will be done for you.
+
+Then if you execute either:
+
+```bash
+testConnectivity.py -o OHMASK --shelf=1 --slot=SLOT --skipScurve 2>&1 | tee connectivityLog.log
+```
+
+or 
+
+```bash
+testConnectivity.py -f5 -o OHMASK --shelf=1 --slot=SLOT --skipScurve 2>&1 | tee connectivityLog.log
+```
+
+this will automatically perform a DAC scan, analyze the DAC scan results, and then upload the register values to the VFAT3 configuration files on the CTP7 in slot `SLOT`.
+
+You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
+
+```bash
+confChamber.py cardName -gX
+```
+
+## Manually Configuring a Detector
+
 Assuming your back-end electronics are setup correctly you can configure the front-end electronics by executing the following steps:
 
 1. Power the LV of your detector(s),
