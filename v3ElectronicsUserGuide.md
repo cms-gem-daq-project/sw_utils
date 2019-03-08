@@ -1,7 +1,7 @@
+
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
    * [How to Use This Guide](#how-to-use-this-guide)
    * [Test Stand Ettiquette](#test-stand-ettiquette)
       * [Available Test Stands &amp; Their Uses](#available-test-stands--their-uses)
@@ -87,6 +87,10 @@ Table of Contents
       * [Getting Info About the CTP7](#getting-info-about-the-ctp7)
       * [Reading a Register Repeatedly](#reading-a-register-repeatedly)
    * [Configuring a Detector](#configuring-a-detector)
+      * [Using testConnectivity.py to Configure a Detector (Recommended)](#using-testconnectivitypy-to-configure-a-detector-recommended)
+         * [Routine to Establish Communication w/Detectors](#routine-to-establish-communication-wdetectors)
+         * [Automatic DAC Scan, Analysis &amp; Upload of Parameters](#automatic-dac-scan-analysis--upload-of-parameters)
+      * [Manually Configuring a Detector](#manually-configuring-a-detector)
       * [Using chamber_vfatDACSettings to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)
    * [Taking Calibration &amp; Commissioning Data](#taking-calibration--commissioning-data)
       * [Getting the VFAT Mask: getVFATMask.py](#getting-the-vfat-mask-getvfatmaskpy)
