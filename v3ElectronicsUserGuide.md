@@ -1399,7 +1399,8 @@ BIAS_SD_I_BFCAS       255
 
 # Building GEM Software
 --------------------
-Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.  
+Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.
+Please note that you need to set the `BUILD_HOME` environment variable before building. Set this to be the folder in which you git clone `cmsgemos`. For example using bash: `export BUILD_HOME=~/Path/To/Folder`.
 
 ## Build Prerequisites: The gembuild repo
 
