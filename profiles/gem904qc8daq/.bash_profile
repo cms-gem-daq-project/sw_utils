@@ -47,10 +47,15 @@ export ELOG_PATH=$BUILD_HOME/gemelog
 export FIRMWARE_GEM=/data/bigdisk/GEMDAQ_Documentation/system/firmware/files
 export GBT_SETTINGS=/data/bigdisk/GEMDAQ_Documentation/system/OptoHybrid/V3/GBT_Files
 
-# 904 QC8 locations
+# LDQM DB Locations
 export GEM_DB_HOST=gem904qc8daq.cern.ch
 #export GEM_DB_NAME=ldqm_tif_qc8_db
 export GEM_DB_PORT=3306
+
+# GEM Online DB Locations
+export GEM_ONLINE_DB_NAME="enter db name"
+#export GEM_ONLINE_DB_NAME="enter db name"
+export GEM_ONLINE_DB_CONN="enter db connection"
 
 # Add config tools to path
 export PATH=$BUILD_HOME/config/daq/:$PATH
@@ -62,12 +67,15 @@ export PATH=/usr/lib/python2.7/site-packages/gempython/gemplotting/macros/:$PATH
 export PATH=$BUILD_HOME/gem-light-dqm/gemtreewriter/bin/linux/x86_64_centos7/:$PATH
 export PATH=$BUILD_HOME/gem-light-dqm/dqm-root/bin/linux/x86_64_centos7/:$PATH
 
+# Add sw_utils to path
+export PATH=$BUILD_HOME/sw_utils/scripts/:$PATH
+
 ################## USER MESSAGES ####################
 
 echo -e ""                                                                                                                                                                                                                        
-echo -e "If any of the uTCA crates experienced a power cut recover the AMC13 follwoing instructions:"
-echo -e "  ${BLUE}http://cmsonline.cern.ch/cms-elog/1060542${NOCOL}"
-echo -e "Then recover the CTP7 following instructions:"
+echo -e "If the system experienced a power cut to recover follow instructions:"
+echo -e "  ${BLUE}https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#recovering-from-a-power-cut${NOCOL}"
+echo -e "An example of a successful CTP7 recovery is shown:"
 echo -e "  ${BLUE}http://cmsonline.cern.ch/cms-elog/1060543${NOCOL}"
 echo -e ""
 
@@ -78,9 +86,9 @@ echo '   $FIRMWARE_GEM/CTP7'
 echo ""
 
 echo ""
-echo "To connect to the AMC13 for eagle26 execute:"
+echo "To connect to the AMC13 for eagle26 & eagle35 execute:"
 echo -e ${GREEN}
-echo '  AMC13Tool2.exe -i gem.shelf03.amc13 -c $GEM_ADDRESS_TABLE_PATH/connections.xml'
+echo '  AMC13Tool2.exe -i gem.shelf01.amc13 -c $GEM_ADDRESS_TABLE_PATH/connections.xml'
 echo -e ${NOCOL}
 echo ""
 echo "To connect to the AMC13 for eagle60 execute:"
@@ -110,6 +118,11 @@ echo -e "To dettach from a screen press ${BLUE}'Ctrl+A' then 'D'${NOCOL}"
 echo -e "To scroll inside a screen press ${BLUE}'Ctrl+A' then 'Esc'${NOCOL}"
 echo -e "To stop scrolling inside a scree press ${BLUE}'Esc'${NOCOL}"
 echo -e "To attach to a screen execute: ${BLUE}screen -r -S SCREENNAME${NOCOL}"
+echo ""
+
+echo ""
+echo -e "The RCMS server for 904 is accessible at:"
+echo -e "   ${BLUE}http://gem904daq01:10000/rcms/gui/servlet/FMPilotServlet${NOCOL}"
 echo ""
 
 #################  MISC  ############################
