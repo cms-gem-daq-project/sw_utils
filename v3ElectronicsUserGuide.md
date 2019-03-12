@@ -73,6 +73,7 @@ Table of Contents
          * [Compiling Only gempython](#compiling-only-gempython)
          * [Configuring your $ENV for testing](#configuring-your-env-for-testing)
       * [ctp7_modoules](#ctp7_modoules)
+      * [gem-plotting-tools](#gem-plotting-tools)
       * [vfatqc-python-scripts](#vfatqc-python-scripts)
       * [xhal](#xhal)
          * [Post-Packing Instructions](#post-packing-instructions)
@@ -1441,9 +1442,9 @@ make rpm
 For each subpackage you will find both a `*.rpm` and a `*.tgz` file inside an `rpm/` subdirectory inside the subdirectory.  For example for `gempython` you'll find under `cmsgemos/gempython/rpm` many files, but the most recent versions of the following files:
 
 ```bash
--rw-r--r--. 1 user zh  49K Sep 19 11:18 cmsgemos_gempython-*.tgz
--rw-r--r--. 1 user zh 2.1K Sep 19 11:18 cmsgemos_gempython-debuginfo-*.cc7.python2.7.x86_64.rpm
--rw-r--r--. 1 user zh 106K Sep 19 11:18 cmsgemos_gempython-*.cc7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  49K Sep 19 11:18 cmsgemos_gempython-*.tgz
+-rw-r--r--. 1 user group 2.1K Sep 19 11:18 cmsgemos_gempython-debuginfo-*.cc7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group 106K Sep 19 11:18 cmsgemos_gempython-*.cc7.python2.7.x86_64.rpm
 ```
 
 will be of interest to you.  The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
@@ -1483,7 +1484,7 @@ cd <your working directory>
 source setup_gemdaq.sh
 ```
 
-Note if this is your first time calling `setup_gemdaq.sh` please first call the help menu to see how to setup a `virtualenv` using this script.  An example is presently provided [here](https://github.com/cms-gem-daq-project/gem-plotting-tools#setup).
+Note if this is your first time calling `setup_gemdaq.sh` please first call the help menu to see how to setup a `virtualenv` using this script.  An example is presently provided [here](https://github.com/cms-gem-daq-project/gem-plotting-tools#setup); in this example a `python` `virtualenv` will be setup and the `cmsgemos_gempython` and `gempython_gemplotting` packages will be installed inside of it.
 
 ## `ctp7_modoules`
 
@@ -1515,6 +1516,33 @@ ctp7_modules/lib
 
 These `*.so` files can be uploaded to the `CTP7` by the test stand sysadmin (for production test stands) or developers (for development test stands).
 
+## `gem-plotting-tools`
+
+Execute the following:
+
+```bash
+cd gem-plotting-tools
+git tag <tag number>
+make clean && make rpm
+```
+
+this will generate the following files:
+
+```bash
+% ll gem-plotting-tools/rpm
+-rw-r--r--. 1 user group 226K Mar 12 13:55 gempython_gemplotting-*.tgz
+-rw-r--r--. 1 user group 308K Mar 12 13:55 gempython_gemplotting-*.src.rpm
+-rw-r--r--. 1 user group 320K Mar 12 13:55 gempython_gemplotting-*.noarch.rpm
+
+
+The wildcard `*` will have the information on the tag number (for the `*.tgz` file) and tag number plus git commit (for `*.rpm` files).  The `rpm` can be used to install the `gemplotting` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  The `*.tgz` file can be used to install the `gemplotting` package into your `virtualenv` by executing:
+
+```bash
+pip install -U gem-plotting-tools/rpm/gempython_gemplotting-<tag number>.tgz
+```
+
+Note it is assumed you've already activated your `virtualenv`
+
 ## `vfatqc-python-scripts`
 
 Execute the following:
@@ -1537,9 +1565,9 @@ this will generate the following files:
 
 ```bash
 % ll vfatqc-python-scripts/rpm 
--rw-r--r--. 1 user zh  42K Sep 19 11:56 gempython_vfatqc-*.tar.gz
--rw-r--r--. 1 user zh 1.9K Sep 19 11:56 gempython_vfatqc-debuginfo-*centos7.python2.7.x86_64.rpm
--rw-r--r--. 1 user zh  89K Sep 19 11:56 gempython_vfatqc-*centos7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  42K Sep 19 11:56 gempython_vfatqc-*.tar.gz
+-rw-r--r--. 1 user group 1.9K Sep 19 11:56 gempython_vfatqc-debuginfo-*centos7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  89K Sep 19 11:56 gempython_vfatqc-*centos7.python2.7.x86_64.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tar.gz` or `*.tgz` file) and tag number plus git commit (for `*.rpm` files).  The `rpm` can be used to install the `vfatqc` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  The `*.tar.gz` or `*.tgz` file (you may only see one depending on which branch you are developing from, `develop` or `rpc-playground`) can be used to install the `vfatqc` package into your `virtualenv` by executing:
@@ -1605,9 +1633,9 @@ This will generate the following files:
 
 ```bash
 % ll xhal/python/reg_interface_gem/rpm 
--rw-r--r--. 1 user zh  19K Sep 17 15:02 reg_interface_gem-*.centos7.python2.7.noarch.rpm
--rw-r--r--. 1 user zh 7.7K Sep 17 15:02 reg_interface_gem-*.tgz
--rw-r--r--. 1 user zh  20K Sep 17 15:02 reg_interface_gem-*.peta_linux.python2.7.noarch.rpm
+-rw-r--r--. 1 user group  19K Sep 17 15:02 reg_interface_gem-*.centos7.python2.7.noarch.rpm
+-rw-r--r--. 1 user group 7.7K Sep 17 15:02 reg_interface_gem-*.tgz
+-rw-r--r--. 1 user group  20K Sep 17 15:02 reg_interface_gem-*.peta_linux.python2.7.noarch.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
@@ -1636,11 +1664,11 @@ This will generate the following files:
 
 ```bash
 % ll xhal/xhalcore/lib 
--rwxr-xr-x. 1 user zh 1.1M Sep 19 10:50 libxhal.so
--rwxr-xr-x. 1 user zh 615K Sep 19 15:48 librpcman.so
+-rwxr-xr-x. 1 user group 1.1M Sep 19 10:50 libxhal.so
+-rwxr-xr-x. 1 user group 615K Sep 19 15:48 librpcman.so
 % ll xhal/xhalcore/rpm 
--rw-r--r--. 1 user zh  11K Sep 19 15:48 xhal-devel-*.centos7.gcc6_3_1.x86_64.rpm
--rw-r--r--. 1 user zh 2.3M Sep 19 15:48 xhal-*.centos7.gcc6_3_1.x86_64.rpm
+-rw-r--r--. 1 user group  11K Sep 19 15:48 xhal-devel-*.centos7.gcc6_3_1.x86_64.rpm
+-rw-r--r--. 1 user group 2.3M Sep 19 15:48 xhal-*.centos7.gcc6_3_1.x86_64.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
