@@ -1533,7 +1533,7 @@ this will generate the following files:
 -rw-r--r--. 1 user group 226K Mar 12 13:55 gempython_gemplotting-*.tgz
 -rw-r--r--. 1 user group 308K Mar 12 13:55 gempython_gemplotting-*.src.rpm
 -rw-r--r--. 1 user group 320K Mar 12 13:55 gempython_gemplotting-*.noarch.rpm
-
+```
 
 The wildcard `*` will have the information on the tag number (for the `*.tgz` file) and tag number plus git commit (for `*.rpm` files).  The `rpm` can be used to install the `gemplotting` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  The `*.tgz` file can be used to install the `gemplotting` package into your `virtualenv` by executing:
 
