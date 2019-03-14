@@ -691,7 +691,7 @@ This will be a symlink to either `recover_v2.sh` or `recover_v3.sh` in the `/mnt
  - place the OH FW into the CTP7 RAM for PROM-less (e.g. `BLASTER(tm)` programming), and 
  - disable forwarding of TTC resets to the front-end.
 
-Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
+Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` (`cold_boot.sh`) if you are working with v3 (v2b) electronics.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
 
 An example of a successful recovery is illustrated in this [elog entry](http://cmsonline.cern.ch/cms-elog/1060543).
 
