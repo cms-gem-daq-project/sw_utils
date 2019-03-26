@@ -46,8 +46,8 @@ do
 
     echo "=============Run $runNum============="
     echo "Configuring Detector for VThreshold1=${armDacVal}"
-    echo "confChamber.py -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    confChamber.py -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "confChamber.py -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
+    confChamber.py -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --run 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
     
     echo "Writing configuration for VThreshold1=${armDacVal} to file"
@@ -70,8 +70,8 @@ do
 
     echo "Launching scurve for VThreshold1=${armDacVal}"
     echo "Scurve Output for scandate: ${scandate}" 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
-    echo "ultraScurve.py -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
-    ultraScurve.py -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
+    echo "ultraScurve.py -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt"
+    ultraScurve.py -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --filename=${DATA_PATH}/${DETECTOR}/scurve/${scandate}/SCurveData.root 2>&1 | tee -a scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "Analyzing results"
