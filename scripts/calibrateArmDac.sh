@@ -1,16 +1,18 @@
-#!/bin/zsh
+#!/bin/bash
 # Usage:
-#   executeScurveProgram.sh <DetName> <cardName> <link> <vfatmask> <Comma Separated List of CFG_THR_ARM_DAC Values>
+#   calibrateArmDac.sh <DetName> <cardName> <link> <vfatmask> <Comma Separated List of CFG_THR_ARM_DAC Values>
 
 helpstring="Usage:
-    ./executeScurveProgram.sh [DetName] [cardName] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
-    ./executeScurveProgram.sh -r [PATH] [DetName] [cardName] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
+    ./calibrateArmDac.sh [DetName] [cardName] [shelf]  [slot] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
+    ./calibrateArmDac.sh -r [PATH] [DetName] [cardName] [shelf] [slot] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
         
     For each CFG_THR_ARM_DAC value specified will create a scandate directory, configure, print the configuration, and take an scurve
 
         DetName: Serial Number of Detector, this should be a subfolder under DATA_PATH variable
         cardName: CTP7 network alias or ip address
         link: OH number on the CTP7
+        shelf: Shelf number
+        slot: Slot number 
         vfatmask: 24-bit mask where a 1 in the n^th bit implies the n^th VFAT shall be excluded
 
     If -r [PATH] is provided, the directory [PATH] will be used instead of creating a new scandate directory and ARM DAC values for which a scurve log file already exists in that directory will be skipped
@@ -18,7 +20,7 @@ helpstring="Usage:
 
 ISFILE=0;
 OPTIND=1
-while getopts "f:h" opts
+while getopts "r:h" opts
 do
     case $opts in
         r)
@@ -36,12 +38,14 @@ unset OPTIND
 
 DETECTOR=$1
 CARDNAME=$2
-LINK=$3
-MASK=$4
-LIST_ARM_DAC=$5
+SHELF=$3
+SLOT=$4
+LINK=$5
+MASK=$6
+LIST_ARM_DAC=$7
 
 # Check inputs
-if [ -z ${5+x} ] 
+if [ -z ${7+x} ] 
 then
     echo ${helpstring}
     return
@@ -59,18 +63,17 @@ echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee ${DATA_PATH}/${DETEC
 
 if [ -z ${RESUMEDIR} ];
 then
+    scandate=$(date +%Y.%m.%d.%H.%M)
+    OUTDIR=${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
+    mkdir -p $OUTDIR
+    ln -snf $OUTDIR ${DATA_PATH}/${DETECTOR}/armDacCal/current
+else
     if [ ! -d ${RESUMEDIR} ];
     then
         echo "Error: provided directory ${RESUMEDIR} does not exist or is not a directory."
         return;
     fi
     OUTDIR=$RESUMEDIR
-else
-    scandate=$(date +%Y.%m.%d.%H.%M)
-    OUTDIR=${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
-    mkdir -p $OUTDIR
-    unlink $OUTDIR
-    ln -sf $OUTDIR ${DATA_PATH}/${DETECTOR}/armDacCal/current
 fi
 
 runNum=0
@@ -88,14 +91,14 @@ do
     sleep 1
 
     echo "Configuring Detector for CFG_THR_ARM_DAC=${armDacVal}"
-    echo "confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
-    confChamber.py -c ${CARDNAME} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
+    echo "confChamber.py --shelf ${SHELF} -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
+    confChamber.py --shelf ${SHELF} -s ${SLOT} -g ${LINK} --vt1=${armDacVal} --vfatmask=${MASK} --zeroChan --run 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     first_unmasked_vfat=0
     mask_as_array=`echo "obase=2; ibase=16; \`echo $MASK | awk -F"0x" '{print $2}' | awk '{print toupper($1)}'\`;" | bc | grep -o .`
     i=0; for vfat in $mask_as_array; do echo $vfat; if [ $vfat == 0 ]; then first_unmasked_vfat=$i; break; fi; i=$(($i+1)); done;
-    
+
     echo "Writing configuration for CFG_THR_ARM_DAC=${armDacVal} to file"
     echo "gem_reg.py -n ${CARDNAME} -e kw 'GEM_AMC.OH.OH${LINK}.GEB.VFAT${first_unmasked_vfat}.CFG_' 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
     echo "Configuration of All VFATs:" 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
@@ -122,14 +125,14 @@ do
 
     echo "Launching scurve for CFG_THR_ARM_DAC=${armDacVal}"
     echo "Scurve Output for scandate: ${scurve_scandate}" 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
-    echo "ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
-    ultraScurve.py -c ${CARDNAME} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
+    echo "ultraScurve.py --shelf ${SHELF} -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
+    ultraScurve.py --shelf ${SHELF} -s ${SLOT} -g ${LINK} --vfatmask=${MASK} --latency=33 --mspl=3 --nevts=100 --voltageStepPulse --filename=${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "Analyzing results"
     echo "Analysis Log for scandate: ${scurve_scandate}" 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
-    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
-    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --isVFAT3 --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
+    echo "anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt"
+    anaUltraScurve.py -i ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}/SCurveData.root -c --calFile=${DATA_PATH}/${DETECTOR}/calFile_calDac_${DETECTOR}.txt -f --deadChanCutLow=0 --deadChanCutHigh=0 --highNoiseCut=20 --maxEffPedPercent=0.1 2>&1 | tee -a $OUTDIR/scurveLog_ArmDac_${armDacVal}.txt
     sleep 1
 
     echo "granting permissions to ${DATA_PATH}/${DETECTOR}/scurve/${scurve_scandate}"
@@ -141,7 +144,7 @@ done
 
 echo "calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt"
 
-export ELOG_PATH = $OUTDIR/
+export ELOG_PATH=$OUTDIR/
 
 calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt
 
