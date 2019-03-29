@@ -142,11 +142,16 @@ do
     runNum=$(($runNum + 1))
 done
 
-echo "calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt"
-
 export ELOG_PATH=$OUTDIR/
 
-calibrateThrDac.py listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt
+#in a venv, the scripts in the macros directory of gem-plotting-tools, including calibrateThrDac.py, are not set as executable when they are installed
+if [ $VIRTUAL_ENV ]
+   then
+       chmod a+x `find $VIRTUAL_ENV -name calibrateThrDac.py`;
+fi
+
+echo "calibrateThrDac.py $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt"
+calibrateThrDac.py $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt 2>&1 | tee $OUTDIR/armDacCalLog_${DETECTOR}.txt
 
 echo "Finished running all scans"
 
