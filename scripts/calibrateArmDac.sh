@@ -59,14 +59,13 @@ then
     return
 fi
 
-echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee ${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
-
 if [ -z ${RESUMEDIR} ];
 then
     scandate=$(date +%Y.%m.%d.%H.%M)
     OUTDIR=${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
     mkdir -p $OUTDIR
     ln -snf $OUTDIR ${DATA_PATH}/${DETECTOR}/armDacCal/current
+    echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
 else
     if [ ! -d ${RESUMEDIR} ];
     then
@@ -74,6 +73,10 @@ else
         return;
     fi
     OUTDIR=$RESUMEDIR
+    #when running in resume mode, the list of scan dates file should already exist and we should not write the header again
+    if [ ! -f $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt ]; then
+        echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
+    fi
 fi
 
 runNum=0
