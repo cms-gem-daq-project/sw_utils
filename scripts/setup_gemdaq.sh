@@ -372,6 +372,7 @@ fi
 # Setup path
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/scripts:$PATH
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/macros:$PATH
+export PATH=$BUILD_HOME/sw_utils/scripts:$PATH
 
 # Create mapping files
 if [ ! -f $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]
