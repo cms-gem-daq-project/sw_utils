@@ -3,17 +3,21 @@
 helpstring="Usage: doQC7.sh -c [DetName]
     Options:
         -c chamber name, without '/' characters, e.g. 'GE11-X-S-CERN-0007'
+        -f starting step to begin testConnectivity.py with, defaults to 1, options [1,5]
         -d Debugging flag, prints additional information"
 
 CHAMBER_NAME=""
+STARTINGSTEP="1"
 DEBUG=""
 
 OPTIND=1
-while getopts "c:dh" opts
+while getopts "c:f:dh" opts
 do
     case $opts in
         c)
             CHAMBER_NAME="$OPTARG";;
+        f)
+            STARTINGSTEP="$OPTARG";;
         d)
             DEBUG="true";;
         h)
@@ -28,6 +32,13 @@ do
     esac
 done
 unset OPTIND
+
+if [ -z "$CHAMBER_NAME" ]
+then
+    echo -e "\e[31mYou must supply a detector serial number using the '-c' option\e[39m"
+    echo ${helpstring}
+    kill -INT $$
+fi
 
 #export DATA_PATH=/<your>/<data>/<directory>
 if [ -z "${DATA_PATH}" ]
@@ -51,9 +62,9 @@ CHAMBER_NAME="$( echo ${CHAMBER_NAME} | tr -d /)"
 # Check if directory under DATA_PATH exists
 if [ ! -d "${DATA_PATH}/${CHAMBER_NAME}" ]; then
     echo mkdir -p ${DATA_PATH}/${CHAMBER_NAME}
-    #mkdir -p ${DATA_PATH}/${CHAMBER_NAME}
+    mkdir -p ${DATA_PATH}/${CHAMBER_NAME}
     echo chmod g+rw ${DATA_PATH}/${CHAMBER_NAME}
-    #chmod g+rw ${DATA_PATH}/${CHAMBER_NAME}
+    chmod g+rw ${DATA_PATH}/${CHAMBER_NAME}
 fi
 
 # Make the logfile
@@ -63,8 +74,8 @@ echo "Terminal output will be saved too: ${LOGFILE}"
 echo "Calling Command: " 2>&1 | tee ${LOGFILE}
 
 # Call testConnectivity.py
-echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -d -n 1000 -o 0x10 --shelf=2 -s5 --writePhases2File" 2>&1 | tee -a ${LOGFILE}
-testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -d -n 1000 -o 0x10 --shelf=2 -s5 --writePhases2File 2>&1 | tee -a ${LOGFILE}
+echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -d -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File" 2>&1 | tee -a ${LOGFILE}
+testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -d -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File 2>&1 | tee -a ${LOGFILE}
 
 # Move the GBT phase scan log to ${DATA_PATH}/${CHAMBER_NAME}
 phaseScanLog=${ELOG_PATH}/gbtPhaseSettings.log
