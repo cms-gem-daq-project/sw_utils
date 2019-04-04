@@ -1,57 +1,77 @@
 #!/bin/bash
-# Usage:
-#   calibrateArmDac.sh <DetName> <cardName> <link> <vfatmask> <Comma Separated List of CFG_THR_ARM_DAC Values>
+usage() {
+    echo './calibrateArmDac.sh -s slot -l link  -L armdaclist [-S shelf] [-m vfatmask] [-r path]'
+    echo ''
+    echo '    armdaclist: comma separate list of CFG_THR_ARM_DAC Values (e.g. 25,30,35,40,45,50)'
+    echo '    link: OH number on the CTP7'
+    echo '    shelf: Shelf number'
+    echo '    slot: Slot number'
+    echo '    vfatmask: 24-bit mask where a 1 in the n^th bit implies the n^th VFAT shall be excluded'
+    echo '    path: output directory to be used instead of creating a new scandated directory'
+    echo ''
+    echo 'For each CFG_THR_ARM_DAC value specified will create a scandate directory, configure, print the configuration, and take an scurve. If "-r path" is provided, ARM DAC values for which an scurve log file already exists in the provided directory will be skipped.'
+    kill -INT $$;
+}
 
-helpstring="Usage:
-    ./calibrateArmDac.sh [DetName] [cardName] [shelf]  [slot] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
-    ./calibrateArmDac.sh -r [PATH] [DetName] [cardName] [shelf] [slot] [link] [vfatmask] [comma separated list of CFG_THR_ARM_DAC Values]
-        
-    For each CFG_THR_ARM_DAC value specified will create a scandate directory, configure, print the configuration, and take an scurve
 
-        DetName: Serial Number of Detector, this should be a subfolder under DATA_PATH variable
-        cardName: CTP7 network alias or ip address
-        link: OH number on the CTP7
-        shelf: Shelf number
-        slot: Slot number 
-        vfatmask: 24-bit mask where a 1 in the n^th bit implies the n^th VFAT shall be excluded
-
-    If -r [PATH] is provided, the directory [PATH] will be used instead of creating a new scandate directory and ARM DAC values for which a scurve log file already exists in that directory will be skipped
-"
 
 ISFILE=0;
 OPTIND=1
-while getopts "r:h" opts
+while getopts "r:S:s:l:m:L:h" opts
 do
     case $opts in
         r)
             RESUMEDIR=$OPTARG;;
+        S)
+            SHELF=$OPTARG;;
+        s)
+            SLOT=$OPTARG;;
+        l)
+            LINK=$OPTARG;;
+        m)
+            MASK=$OPTARG;;
+        L)
+            LIST_ARM_DAC=$OPTARG;;
         h)
-            echo ${helpstring};;
+            usage;;
         \?)
-            echo ${helpstring};;
+            usage;;
         [?])
-            echo ${helpstring};;
+            usage;;
     esac
 done
 shift $((OPTIND-1))
 unset OPTIND
 
-DETECTOR=$1
-CARDNAME=$2
-SHELF=$3
-SLOT=$4
-LINK=$5
-MASK=$6
-LIST_ARM_DAC=$7
-
-# Check inputs
-if [ -z ${7+x} ] 
+if [ -z "$LIST_ARM_DAC" ] || [ -z "$SLOT" ] || [ -z "$LINK" ]
 then
-    echo ${helpstring}
-    return
+    usage
 fi
 
-#export DATA_PATH=/<your>/<data>/<directory>
+if (( $SHELF < 10 ))
+then
+    SHELFSTRING="0${SHELF}"
+else
+    SHELFSTRING=$SHELF
+fi
+
+if (( $SLOT < 10 ))
+then
+    SLOTSTRING="0${SLOT}"
+else
+    SLOTSTRING=$SLOT
+fi
+
+CARDNAME="gem-shelf${SHELFSTRING}-amc${SLOTSTRING}"
+
+DETECTOR=`python -c "from gempython.gemplotting.mapping.chamberInfo import chamber_config; print chamber_config[(${SHELF},${SLOT},${LINK})]" | tail -n1`
+
+if [ -z "$MASK" ]
+then
+    MASK=`python -c "from gempython.tools.amc_user_functions_xhal import HwAMC; amcboard = HwAMC('${CARDNAME}'); print str(hex(amcboard.getLinkVFATMask(${LINK}))).strip('L')" | tail -n 1`
+fi
+
+xport DATA_PATH=/<your>/<data>/<directory>
 if [ -z "$DATA_PATH" ]
 then
     echo "DATA_PATH not set, please set DATA_PATH to a directory where data files created by scan applications will be written"
@@ -59,7 +79,7 @@ then
     return
 fi
 
-if [ -z ${RESUMEDIR} ];
+if [ -z "$RESUMEDIR" ];
 then
     scandate=$(date +%Y.%m.%d.%H.%M)
     OUTDIR=${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
@@ -67,7 +87,7 @@ then
     ln -snf $OUTDIR ${DATA_PATH}/${DETECTOR}/armDacCal/current
     echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
 else
-    if [ ! -d ${RESUMEDIR} ];
+    if [ ! -d "$RESUMEDIR" ];
     then
         echo "Error: provided directory ${RESUMEDIR} does not exist or is not a directory."
         return;
