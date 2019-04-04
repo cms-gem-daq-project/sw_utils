@@ -71,7 +71,7 @@ then
     MASK=`python -c "from gempython.tools.amc_user_functions_xhal import HwAMC; amcboard = HwAMC('${CARDNAME}'); print str(hex(amcboard.getLinkVFATMask(${LINK}))).strip('L')" | tail -n 1`
 fi
 
-xport DATA_PATH=/<your>/<data>/<directory>
+#export DATA_PATH=/<your>/<data>/<directory>
 if [ -z "$DATA_PATH" ]
 then
     echo "DATA_PATH not set, please set DATA_PATH to a directory where data files created by scan applications will be written"
