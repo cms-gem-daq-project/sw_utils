@@ -84,6 +84,7 @@ then
     scandate=$(date +%Y.%m.%d.%H.%M)
     OUTDIR=${DATA_PATH}/${DETECTOR}/armDacCal/${scandate}
     mkdir -p $OUTDIR
+    chmod g+rw $OUTDIR
     ln -snf $OUTDIR ${DATA_PATH}/${DETECTOR}/armDacCal/current
     echo -e "ChamberName\tscandate\tCFG_THR_ARM_DAC" 2>&1 | tee $OUTDIR/listOfScanDates_calibrateArmDac_${DETECTOR}.txt
 else
