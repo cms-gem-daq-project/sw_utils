@@ -8,18 +8,15 @@ helpstring="Usage: doQC7.sh -c [DetName]
 
 CHAMBER_NAME=""
 STARTINGSTEP="1"
-DEBUG=""
 
 OPTIND=1
-while getopts "c:f:dh" opts
+while getopts "c:f:h" opts
 do
     case $opts in
         c)
             CHAMBER_NAME="$OPTARG";;
         f)
             STARTINGSTEP="$OPTARG";;
-        d)
-            DEBUG="true";;
         h)
             echo >&2 "${helpstring}"
             kill -INT $$;;
@@ -74,8 +71,8 @@ echo "Terminal output will be saved too: ${LOGFILE}"
 echo "Calling Command: " 2>&1 | tee ${LOGFILE}
 
 # Call testConnectivity.py
-echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -d -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File" 2>&1 | tee -a ${LOGFILE}
-testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -d -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File 2>&1 | tee -a ${LOGFILE}
+echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File" 2>&1 | tee -a ${LOGFILE}
+testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -n 200 -o 0x10 --shelf=2 -s5 --writePhases2File 2>&1 | tee -a ${LOGFILE}
 
 # Move the GBT phase scan log to ${DATA_PATH}/${CHAMBER_NAME}
 phaseScanLog=${ELOG_PATH}/gbtPhaseSettings.log
