@@ -1,11 +1,12 @@
 #!/bin/bash
 usage() {
-    echo './calibrateArmDac.sh -s slot -l link  -L armdaclist [-S shelf] [-m vfatmask] [-r path]'
+    echo './calibrateArmDac.sh -s slot -l link  -L armdaclist [-D detName] [-S shelf] [-m vfatmask] [-r path]'
     echo ''
-    echo '    armdaclist: comma separate list of CFG_THR_ARM_DAC Values (e.g. 25,30,35,40,45,50)'
-    echo '    link: OH number on the CTP7'
-    echo '    shelf: Shelf number'
     echo '    slot: Slot number'
+    echo '    link: OH number on the CTP7'
+    echo '    armdaclist: comma separate list of CFG_THR_ARM_DAC Values (e.g. 25,30,35,40,45,50)'
+    echo '    detName: Serial Number of Detector, this should be a subfolder under DATA_PATH variable'
+    echo '    shelf: Shelf number'
     echo '    vfatmask: 24-bit mask where a 1 in the n^th bit implies the n^th VFAT shall be excluded'
     echo '    path: output directory to be used instead of creating a new scandated directory'
     echo ''
@@ -17,21 +18,23 @@ usage() {
 
 ISFILE=0;
 OPTIND=1
-while getopts "r:S:s:l:m:L:h" opts
+while getopts "r:S:s:l:m:L:d:h" opts
 do
     case $opts in
-        r)
-            RESUMEDIR=$OPTARG;;
-        S)
-            SHELF=$OPTARG;;
         s)
             SLOT=$OPTARG;;
         l)
             LINK=$OPTARG;;
-        m)
-            MASK=$OPTARG;;
         L)
             LIST_ARM_DAC=$OPTARG;;
+        r)
+            RESUMEDIR=$OPTARG;;
+        S)
+            SHELF=$OPTARG;;
+        m)
+            MASK=$OPTARG;;
+        d)
+            DETECTOR=$OPTARG;;
         h)
             usage;;
         \?)
@@ -46,6 +49,11 @@ unset OPTIND
 if [ -z "$LIST_ARM_DAC" ] || [ -z "$SLOT" ] || [ -z "$LINK" ]
 then
     usage
+fi
+
+if [ -z "$SHELF" ]
+then
+    SHELF=1
 fi
 
 if (( $SHELF < 10 ))
@@ -64,9 +72,12 @@ fi
 
 CARDNAME="gem-shelf${SHELFSTRING}-amc${SLOTSTRING}"
 
-DETECTOR=`python -c "from gempython.gemplotting.mapping.chamberInfo import chamber_config; print chamber_config[(${SHELF},${SLOT},${LINK})]" | tail -n1`
+if [ -z "$DETECTOR" ]
+then
+    DETECTOR=`python -c "from gempython.gemplotting.mapping.chamberInfo import chamber_config; print chamber_config[(${SHELF},${SLOT},${LINK})]" | tail -n1`
+fi
 
-if [ -z "$MASK" ]
+if [ -z "$MASK"] 
 then
     MASK=`python -c "from gempython.tools.amc_user_functions_xhal import HwAMC; amcboard = HwAMC('${CARDNAME}'); print str(hex(amcboard.getLinkVFATMask(${LINK}))).strip('L')" | tail -n 1`
 fi
