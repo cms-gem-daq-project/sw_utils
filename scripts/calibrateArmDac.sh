@@ -1,6 +1,6 @@
 #!/bin/bash
 usage() {
-    echo './calibrateArmDac.sh -s slot -l link  -L armdaclist [-D detName] [-S shelf] [-m vfatmask] [-r path]'
+    echo './calibrateArmDac.sh -s slot -l link  -L armdaclist [-d detName] [-S shelf] [-m vfatmask] [-r path]'
     echo ''
     echo '    slot: Slot number'
     echo '    link: OH number on the CTP7'
