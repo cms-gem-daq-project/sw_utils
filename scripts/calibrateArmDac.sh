@@ -140,7 +140,7 @@ do
         if [ $vfat == 0 ];
         then
             first_unmasked_vfat=$i;
-            print "The first unmasked VFAT is VFAT ${vfat}"
+            echo "The first unmasked VFAT is VFAT ${vfat}"
             break;
         fi;
         i=$(($i+1));
@@ -148,7 +148,7 @@ do
     
     if (( $first_unmasked_vfat < 0 || $first_unmasked_vfat > 23 ))
     then
-        print "Problem finding the first unmasked VFAT, exiting"
+        echo "Problem finding the first unmasked VFAT, exiting"
         kill -INT $$
     fi
     
