@@ -102,8 +102,8 @@ else
     echo "Connectivity Testing Probably Didn't Complete Successfully" 2>&1 | tee -a ${LOGFILE}
 fi
 
-echo "ls -lhtr ${DATA_PATH}/${CHAMBER_NAME}" 2>&1 | tee -a ${LOGFILE}
-ls -lhtr ${DATA_PATH}/${CHAMBER_NAME} 2>&1 | tee -a ${LOGFILE}
+echo "ls -lhtr ${DATA_PATH}/${CHAMBER_NAME}/*${scandate}*.log" 2>&1 | tee -a ${LOGFILE}
+ls -lhtr ${DATA_PATH}/${CHAMBER_NAME}/*${scandate}*.log 2>&1 | tee -a ${LOGFILE}
 
 echo chmod g+rw -R ${DATA_PATH}/${CHAMBER_NAME}
 chmod g+rw -R ${DATA_PATH}/${CHAMBER_NAME}
