@@ -6,15 +6,20 @@ helpstring="Usage: doQC7.sh -c [DetName]
         -c chamber name, without '/' characters, e.g. 'GE11-X-S-CERN-0007'
         -d Debugging flag, prints additional information
         -f starting step to begin testConnectivity.py with, defaults to 1, options [1,5]
+        -g GEM detector type (i.e. 'long' or 'short')
+        -o ohMask to use
         -s uTCA shelf number"
 
 AMCSLOT="5"
 CHAMBER_NAME=""
+DETTYPE="short"
+GEMTYPE="ge11"
+OHMASK="0x10"
 SHELF="2"
 STARTINGSTEP="1"
 
 OPTIND=1
-while getopts "a:c:f:s:hd" opts
+while getopts "a:c:f:g:o:s:hd" opts
 do
     case $opts in
         a)
@@ -23,6 +28,10 @@ do
             CHAMBER_NAME="$OPTARG";;
         f)
             STARTINGSTEP="$OPTARG";;
+        g)
+            DETTYPE="$OPTARG";;
+        o)
+            OHMASK="$OPTARG";;
         s)
             SHELF="$OPTARG";;
         h)
@@ -79,8 +88,8 @@ echo "Terminal output will be saved too: ${LOGFILE}"
 echo "Calling Command: " 2>&1 | tee ${LOGFILE}
 
 # Call testConnectivity.py
-echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -n 50 -o 0x10 --shelf=${SHELF} -s${AMCSLOT} --writePhases2File" 2>&1 | tee -a ${LOGFILE}
-testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink -f${STARTINGSTEP} -n 50 -o 0x10 --shelf=${SHELF} -s${AMCSLOT} --writePhases2File 2>&1 | tee -a ${LOGFILE}
+echo "testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink --detType=${DETTYPE} -f${STARTINGSTEP} --gemType=${GEMTYPE} -n 50 --writePhases2File ${SHELF} ${AMCSLOT} ${OHMASK}" 2>&1 | tee -a ${LOGFILE}
+testConnectivity.py -c ${CHAMBER_NAME} --checkCSCTrigLink --detType=${DETTYPE} -f${STARTINGSTEP} --gemType=${GEMTYPE} -n 50 --writePhases2File ${SHELF} ${AMCSLOT} ${OHMASK} 2>&1 | tee -a ${LOGFILE}
 
 # Move the GBT phase scan log to ${DATA_PATH}/${CHAMBER_NAME}
 phaseScanLog=${ELOG_PATH}/gbtPhaseSettings.log
@@ -108,6 +117,19 @@ if [ -f ${phaseScanResults} ]; then
 else
     echo "No GBT Phase Settings Found" 2>&1 | tee -a ${LOGFILE}
     echo "Connectivity Testing Probably Didn't Complete Successfully" 2>&1 | tee -a ${LOGFILE}
+fi
+
+phaseScanPlot=${ELOG_PATH}/canv_GBTPhaseScanResults_${CHAMBER_NAME}
+if [ -f ${phaseScanPlot}.png ]; then
+    echo "mv ${phaseScanPlot}.png ${DATA_PATH}/${CHAMBER_NAME}/canv_GBTPhaseScanResults_${CHAMBER_NAME}_${scandate}.png" 2>&1 | tee -a ${LOGFILE}
+    mv ${phaseScanPlot}.png ${DATA_PATH}/${CHAMBER_NAME}/canv_GBTPhaseScanResults_${CHAMBER_NAME}_${scandate}.png 2>&1 | tee -a ${LOGFILE}
+    
+    echo "mv ${phaseScanPlot}.pdf ${DATA_PATH}/${CHAMBER_NAME}/canv_GBTPhaseScanResults_${CHAMBER_NAME}_${scandate}.pdf" 2>&1 | tee -a ${LOGFILE}
+    mv ${phaseScanPlot}.pdf ${DATA_PATH}/${CHAMBER_NAME}/canv_GBTPhaseScanResults_${CHAMBER_NAME}_${scandate}.pdf 2>&1 | tee -a ${LOGFILE}
+else
+    echo "No GBT Phase Plot Found" 2>&1 | tee -a ${LOGFILE}
+    echo "Either connectivity testing did not succeed or you entered an ohMask that had more than one nonzero bit" 2>&1 | tee -a ${LOGFILE}
+    echo "If the case is the former you can probably check for the phase scan plot in ELOG_PATH" 2>&1 | tee -a ${LOGFILE}
 fi
 
 echo "ls -lhtr ${DATA_PATH}/${CHAMBER_NAME}/*${scandate}*.log" 2>&1 | tee -a ${LOGFILE}
