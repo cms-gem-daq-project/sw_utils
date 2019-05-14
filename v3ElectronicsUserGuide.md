@@ -1783,7 +1783,7 @@ Assuming your back-end electronics are setup correctly you can configure the fro
 3. The execute:
 
 ```bash
-testConnectivity.py -o OHMASK --shelf=1 --slot=SLOT --skipDACScan --skipScurve --nPhaseScans=100 2>&1 | tee connectivityLog.log
+testConnectivity.py --skipDACScan --skipScurve --nPhaseScans=100 SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
 ```
 
 For each OH in `ohMask` this will:
@@ -1799,6 +1799,8 @@ If you would like to start at a later step use the option `-f X` where `X` is th
 
 You can add the option `-i` to ignore VFAT synchronization errors.
 
+You can add the option `-a` to accept a bad trigger link status (e.g. trigger link fibers are not connected).
+
 You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
 
 ```bash
@@ -1812,13 +1814,13 @@ First upload the correct `CFG_IREF` values to the VFAT3 configuration files on t
 Then if you execute either:
 
 ```bash
-testConnectivity.py -o OHMASK --shelf=1 --slot=SLOT --skipScurve 2>&1 | tee connectivityLog.log
+testConnectivity.py --skipScurve SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
 ```
 
 or 
 
 ```bash
-testConnectivity.py -f5 -o OHMASK --shelf=1 --slot=SLOT --skipScurve 2>&1 | tee connectivityLog.log
+testConnectivity.py -f5 --skipScurve SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
 ```
 
 this will automatically perform a DAC scan, analyze the DAC scan results, and then upload the register values to the VFAT3 configuration files on the CTP7 in slot `SLOT`.
@@ -1849,36 +1851,30 @@ This will issue an RPC call to the CTP7 whose network alias is `cardName` and lo
 
 ## Using `chamber_vfatDACSettings` to write common register values
 
-While some registers must be set by hand or by the `replace_parameter.sh` script described in [Configuration File on CTP7](#configuration-file-on-ctp7) since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
+While some registers must be set by hand or by the `replace_parameter.sh` script described in [Configuration File on CTP7](#configuration-file-on-ctp7) since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `system_specific_constants.py` file under `$PYTHONPATH` of your system:
 
 ```bash
-% ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-lrwxrwxrwx. 1 root root 62 Jul  9 09:49 /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py -> /home/gemuser/gemdaq/gem-plotting-tools/mapping/chamberInfo.py
+% $ locate system_specific_constants.py
+/home/gemuser/gemdaq/config/system_specific_constants.py
 ```
 
-Or it is installed inside your python `virtualenv` under:
-
-```bash
-$VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-```
-
-The `chamber_vfatDACSettings` dictionary is a nested dictionary where the outer key is the optohybrid number and the inner dictionary uses (key,value) pairs of (register name, value), example:
+The `chamber_vfatDACSettings` dictionary is a nested dictionary where the outer key is the geographic address (e.g. `ohKey`)-a tuple `(shelf,slot,link)` which specifices uTCA shelf number, AMC slot number, and optohybrid number-and the inner dictionary uses (key,value) pairs of (register name, value), example:
 
 ```python
 chamber_vfatDACSettings = {    
-        0:{
+        (1,4,2):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":97,
             "CFG_RES_PRE":2,
             "CFG_CAP_PRE":1,
             },
-        1:{
+        (1,4,3):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":98,
             "CFG_RES_PRE":2,
             "CFG_CAP_PRE":1,
             },
-        2:{
+        (1,4,6):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":99,
             "CFG_RES_PRE":2,
