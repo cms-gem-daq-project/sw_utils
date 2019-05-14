@@ -45,7 +45,7 @@ Table of Contents
             * [Over Fiber: gbt.py](#over-fiber-gbtpy)
             * [Performing a GBT Phase Scan](#performing-a-gbt-phase-scan)
             * [Fusing](#fusing)
-            * [`writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT](#writeGBTPhase.py-manually-writing-the-GBT-e-link-phase-for-a-given-vfat)
+            * [`writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT](#writegbtphasepy-manually-writing-the-gbt-e-link-phase-for-a-given-vfat)
          * [GBT_READY Registers](#gbt_ready-registers)
          * [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset)
       * [Slow Control ASIC (SCA)](#slow-control-asic-sca)
