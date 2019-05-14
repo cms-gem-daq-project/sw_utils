@@ -2081,22 +2081,29 @@ Here the `getVFATMask.py` tool was given `eagleXX` `OHY` and returns `some hex n
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
-## The Mapping File: `chamberInfo.py
+## The Mapping File: `chamberInfo.py`
 
-The `chamberInfo.py` file in addition to defining the `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)) also defines three other dictionaries: `chamber_config`, `GEBtype` and `chamber_vfatMask`.  These dictionaries allow automatic discovery of detector serial numbers, data paths, chamber type, and vfat mask.  As mentioned the `chamberInfo.py` file is either a symlink in the system installed package (which points to a user editable area):
-
-```bash
-% ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-lrwxrwxrwx. 1 root root 62 Jul  9 09:49 /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py -> /home/gemuser/gemdaq/gem-plotting-tools/mapping/chamberInfo.py
-```
-
-or it is installed inside your python `virtualenv` under:
+The `chamberInfo.py` file is either a system installed file or installed under your python `virtualenv` which loads the required python dictionaries from your setup's `system_specific_constants.py` file (found under `$PYTHONPATH`) at runtime.  You never have to change the `chamberInfo.py` file and you should only ever edit the `system_specific_constants.py` file via the `editConfig` alias on the user account, e.g. call:
 
 ```bash
-$VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
+$ editConfig 
 ```
 
-The key values of the `chamber_config`, `GEBtype` and `chamber_vfatMask` are always the optohybrid number, this enables the three dictionaries to be easily linked (without having to keep track of `tuple` indices) and enable you to define your test stand by specifying which detector is on which optical link (e.g. optohybrid number), the detector type (i.e. "long" or "short") and the VFAT mask needed (usually use `0x0`).
+Once the `chamberInfo.py` file has loaded the information from `system_specific_constants.py` at runtime the python API will have a set of dictionaries:
+
+1. `chamber_config`,
+2. `GEBtype`, and
+1. `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)),
+
+These dictionaries will:
+
+- define which detectors are connected,
+- provide the mapping between detector serial numbers and geographic addresses, 
+- possible DAC values to use to overwrite values stored in the [VFAT3 configuration files on the CTP7](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#configuration-file-on-ctp7), 
+- the appropriate data paths to write output data too, and 
+- the chamber type.  
+
+The key values of the `chamber_config` and `GEBtype` are the geographic address (e.g. `ohKey`)-a tuple `(shelf,slot,link)` which specifices uTCA shelf number, AMC slot number, and optohybrid number-and enable you to define your test stand by specifying which detector is on which geographic address and what its detector type is, i.e. "long", "short", "m1", etc...
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
