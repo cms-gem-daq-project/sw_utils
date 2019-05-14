@@ -317,7 +317,7 @@ then
     export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
     export REPO_PATH=/data/bigdisk/sw/gemonlinesw/repos/
 
-    # Setup LD_LIBARY_PATH
+    # Setup LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
@@ -355,7 +355,7 @@ then
     # System Paths
     export DATA_PATH=/gemdata
 
-    # Setup LD_LIBARY_PATH
+    # Setup LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
@@ -373,6 +373,9 @@ fi
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/scripts:$PATH
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/macros:$PATH
 export PATH=$BUILD_HOME/sw_utils/scripts:$PATH
+
+# Setup PYTHONPATH
+export PYTHONPATH=$BUILD_HOME:$PYTHONPATH
 
 # Create mapping files
 if [ ! -f $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]
