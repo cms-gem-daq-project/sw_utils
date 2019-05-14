@@ -45,6 +45,7 @@ Table of Contents
             * [Over Fiber: gbt.py](#over-fiber-gbtpy)
             * [Performing a GBT Phase Scan](#performing-a-gbt-phase-scan)
             * [Fusing](#fusing)
+            * [`writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT](#writeGBTPhase.py-manually-writing-the-GBT-e-link-phase-for-a-given-vfat)
          * [GBT_READY Registers](#gbt_ready-registers)
          * [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset)
       * [Slow Control ASIC (SCA)](#slow-control-asic-sca)
@@ -1030,6 +1031,37 @@ This can only be done with the USB dongle and this should be done only by true h
  31. Check if all rows in table are green (it could be that the last row is red…it’s okay if it’s only this one).
 
 The GBTx is now fused.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+#### `writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT
+
+You can write the GBT e-link phase for a given VFAT using the `writeGBTPhase.py` tool by calling from the DAQ machine:
+
+```bash
+$ writeGBTPhase.py -h
+usage: writeGBTPhase.py [-h] shelf slot link vfat phase
+
+Tool for writing GBT phase for a single elink
+
+positional arguments:
+  shelf       uTCA shelf number
+  slot        AMC slot number in the uTCA shelf
+  link        OH number on the AMC
+  vfat        VFAT number on the OH
+  phase       GBT Phase Value to Write
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
+For example:
+
+```bash
+writeGBTPhase.py 1 4 3 17 3
+```
+
+this will write the phase 3 to VFAT17 on `(shelf,slot,link) = (1,4,3)`.
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
