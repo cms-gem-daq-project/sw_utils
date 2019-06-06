@@ -1293,7 +1293,7 @@ eagleXX > kw GEM_AMC.TRIGGER.OHY.LINK
 0x66000e90 r    GEM_AMC.TRIGGER.OHY.LINK1_UNDERFLOW_CNT                 0x00000000
 0x66000e94 r    GEM_AMC.TRIGGER.OHY.LINK0_SYNC_WORD_CNT                 0x00000000
 0x66000e94 r    GEM_AMC.TRIGGER.OHY.LINK1_SYNC_WORD_CNT                 0x00000000
-``` 
+```
 
 If your link does not look like the above the link is not healthy.  First try reseting the counters and then reading them again by executing:
 
@@ -1322,6 +1322,8 @@ You can write a 24 bit mask to `GEM_AMC.OH.OHX.FPGA.TRIG.CTRL.VFAT_MASK` to mask
 ### Temperature Monitoring
 
 The OH has the FPGA core temperature accessible from the sysmon registers in the OHv3 address table and nine PT100 sensors located around the board.  These PT100 sensors are read by the SCA when monitoring is enabled, see [Voltage & Temperature Monitoring].
+
+SCA gives output in the ADC counts. For the details of how the conversions for temperature and voltages are done look [here](docs/SCA_temperature_voltage_unit_conversion.md)
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
