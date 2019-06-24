@@ -1036,32 +1036,73 @@ The GBTx is now fused.
 
 #### `writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT
 
-You can write the GBT e-link phase for a given VFAT using the `writeGBTPhase.py` tool by calling from the DAQ machine:
+You can write the GBT e-link phase for a given VFAT or all VFATs using the `writeGBTPhase.py` tool by calling from the DAQ machine:
 
 ```bash
-$ writeGBTPhase.py -h
-usage: writeGBTPhase.py [-h] shelf slot link vfat phase
+$writeGBTPhase.py -h
+usage: writeGBTPhase.py [-h] {single,all} ...
 
-Tool for writing GBT phase for a single elink
+Tool for writing GBT phase for a single or all elink
+
+positional arguments:
+  {single,all}  Available subcommands and their descriptions.To view the sub
+                menu call writeGBTPhase.py COMMAND -h e.g.
+                writeGBTPhase.py single -h
+    single      write GBT phase for single VFAT
+    all         write GBT phase for all VFAT
+
+optional arguments:
+  -h, --help    show this help message and exit
+```
+There are two sub-commands `single` and `all`. To check their details:
+
+```bash
+$writeGBTPhase.py single -h
+usage: writeGBTPhase.py single [-h] shelf slot vfat phase link
 
 positional arguments:
   shelf       uTCA shelf number
   slot        AMC slot number in the uTCA shelf
-  link        OH number on the AMC
   vfat        VFAT number on the OH
   phase       GBT Phase Value to Write
+  link        OH number on the AMC
 
 optional arguments:
   -h, --help  show this help message and exit
 ```
+and
+```bash
+$writeGBTPhase.py all -h
+usage: writeGBTPhase.py all [-h] shelf slot gbtPhaseFile
+
+positional arguments:
+  shelf         uTCA shelf number
+  slot          AMC slot number in the uTCA shelf
+  gbtPhaseFile  File having link, vfat and phase info.
+                The input file will look like:
+                --------------------------
+                link/i:vfatN/i:GBTPhase/i:
+                4    0    7
+                4    1    9
+                4    2    13
+                --------------------------
+
+optional arguments:
+  -h, --help    show this help message and exit
+```
 
 For example:
 
-```bash
-writeGBTPhase.py 1 4 3 17 3
-```
-
-this will write the phase 3 to VFAT17 on `(shelf,slot,link) = (1,4,3)`.
+1. If you want to write phase for single VFAT:
+   ```bash
+   writeGBTPhase.py single 1 6 23 7 3
+   ```
+   this will write the phase 7 to VFAT23 on `(shelf,slot,link) = (1,6,3)`.
+2. If you want to write phase for all VFAT using input text file as expected by the script:
+   ```bash
+   writeGBTPhase.py all 1 6 $DATA_PATH/GE11-X-S-INDIA-0015/gbtPhaseSetPoints_GE11-X-S-INDIA-0015_current.log
+   ```
+   Here, we assumed that we are reading the detector `GE11-X-S-INDIA-0015`. This will write phases for all VFATs on `(shelf, slot) = (1, 6)` for the link told by the text file.
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
