@@ -68,6 +68,7 @@ Table of Contents
          * [Checking VFAT Synchronization](#checking-vfat-synchronization)
          * [Configuration File on CTP7](#configuration-file-on-ctp7)
    * [Building GEM Software](#building-gem-software)
+      * [GEM RPM Location on 904 NAS](#gem-rpm-location-on-904-nas)
       * [Build Prerequisites: The gembuild repo](#build-prerequisites-the-gembuild-repo)
       * [cmsgemos](#cmsgemos)
          * [Compiling the entire framework](#compiling-the-entire-framework)
@@ -1550,6 +1551,19 @@ BIAS_SD_I_BFCAS       255
 --------------------
 Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.
 Please note that you need to set the `BUILD_HOME` environment variable before building. Set this to be the folder in which you git clone `cmsgemos`. For example using bash: `export BUILD_HOME=~/Path/To/Folder`.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+## GEM RPM Location on 904 NAS
+--------------------
+
+If you are an authorized rpm builder you can place your compiled RPM's on the following location on the 904 NAS:
+
+```
+/data/bigdisk/sw/gemonlinesw/repos/centos7_x86_64/
+```
+
+Additionally if your a sysadmin you can find compiled RPM's at this location
 
 [Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
