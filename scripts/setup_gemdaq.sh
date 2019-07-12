@@ -323,6 +323,7 @@ then
     export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=${BUILD_HOME}/xhal/xhalcore/lib:$LD_LIBRARY_PATH
 
     # Add hardware access tools to PATH
     export PATH=/opt/cactus/bin/amc13/:$PATH
@@ -342,7 +343,7 @@ then
     # Misc
     #alias arp-scan='sudo /usr/sbin/arp-scan'
     alias arp-scan='ip n show dev "$@" to 192.168.0.0/16'
-    alias editConfig='vim $VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py'
+    alias editConfig='vim ${BUILD_HOME}/system_specific_constants.py'
     alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
 
     # fedKit on gem904daq04
