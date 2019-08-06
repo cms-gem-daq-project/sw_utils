@@ -36,9 +36,11 @@ fi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/wiscrpcsvc/lib/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/xhal/lib/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rwreg/lib/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/reedmuller/lib
 
 export PATH=$PATH:/opt/reg_utils/bin/
 export PATH=$PATH:/opt/xhal/bin/
+export PATH=$PATH:/opt/reedmuller/bin
 
 export BUILD_HOME=/home/gemuser/gemdaq
 export DATA_PATH=/data/bigdisk/GEM-Data-Taking/GE11_QC8/
