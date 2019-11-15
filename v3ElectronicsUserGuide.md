@@ -1422,8 +1422,8 @@ The calibration module can inject charge either in current injection of voltage 
 Both the comparator and the calibration module can be configured to look at (inject) either positve or negative polarity pulses.  For calibration scans to be effective the polarity of the calibration module must match the polarity expected by the comparator.  Additionally during data taking the polarity the comparator should match the polarity of the GEM signal (i.e. negative polarity).  To ensure there are no mistakes both polarities are set such that:
 
 ```
-CFG_SEL_POL = 0x1
-CFG_CAL_SEL_POL = 0x1
+CFG_SEL_POL = 0x0
+CFG_CAL_SEL_POL = 0x0
 ```
 
 To ensure proper temperature reading and any DAC monitoring the `CFG_VREF_ADC` must be set such that this is as close to 1.0V as possible (again provided by VFAT3 team at production time).  The `HV3b_V2` hybrids only have the internal temperature sensor on the VFAT3 ASIC while `HV3b_V3` and `V4` hybrids have an external PT100 sensor for monitoring temperature.
