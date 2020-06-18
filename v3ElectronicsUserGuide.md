@@ -1,7 +1,7 @@
+
 Table of Contents
 =================
 
-   * [Table of Contents](#table-of-contents)
    * [How to Use This Guide](#how-to-use-this-guide)
    * [Test Stand Ettiquette](#test-stand-ettiquette)
       * [Available Test Stands &amp; Their Uses](#available-test-stands--their-uses)
@@ -45,6 +45,7 @@ Table of Contents
             * [Over Fiber: gbt.py](#over-fiber-gbtpy)
             * [Performing a GBT Phase Scan](#performing-a-gbt-phase-scan)
             * [Fusing](#fusing)
+            * [`writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT](#writegbtphasepy-manually-writing-the-gbt-e-link-phase-for-a-given-vfat)
          * [GBT_READY Registers](#gbt_ready-registers)
          * [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset)
       * [Slow Control ASIC (SCA)](#slow-control-asic-sca)
@@ -67,12 +68,14 @@ Table of Contents
          * [Checking VFAT Synchronization](#checking-vfat-synchronization)
          * [Configuration File on CTP7](#configuration-file-on-ctp7)
    * [Building GEM Software](#building-gem-software)
+      * [GEM RPM Location on 904 NAS](#gem-rpm-location-on-904-nas)
       * [Build Prerequisites: The gembuild repo](#build-prerequisites-the-gembuild-repo)
       * [cmsgemos](#cmsgemos)
          * [Compiling the entire framework](#compiling-the-entire-framework)
          * [Compiling Only gempython](#compiling-only-gempython)
          * [Configuring your $ENV for testing](#configuring-your-env-for-testing)
       * [ctp7_modoules](#ctp7_modoules)
+      * [gem-plotting-tools](#gem-plotting-tools)
       * [vfatqc-python-scripts](#vfatqc-python-scripts)
       * [xhal](#xhal)
          * [Post-Packing Instructions](#post-packing-instructions)
@@ -87,6 +90,10 @@ Table of Contents
       * [Getting Info About the CTP7](#getting-info-about-the-ctp7)
       * [Reading a Register Repeatedly](#reading-a-register-repeatedly)
    * [Configuring a Detector](#configuring-a-detector)
+      * [Using testConnectivity.py to Configure a Detector (Recommended)](#using-testconnectivitypy-to-configure-a-detector-recommended)
+         * [Routine to Establish Communication w/Detectors](#routine-to-establish-communication-wdetectors)
+         * [Automatic DAC Scan, Analysis &amp; Upload of Parameters](#automatic-dac-scan-analysis--upload-of-parameters)
+      * [Manually Configuring a Detector](#manually-configuring-a-detector)
       * [Using chamber_vfatDACSettings to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)
    * [Taking Calibration &amp; Commissioning Data](#taking-calibration--commissioning-data)
       * [Getting the VFAT Mask: getVFATMask.py](#getting-the-vfat-mask-getvfatmaskpy)
@@ -105,6 +112,8 @@ Hello! Congratulations, you're taking one of the first steps to becoming an expe
  - [Building GEM Software Tools](#building-gem-software);
  - [Configuring a Detector](#configuring-a-detector); and
  - [Taking Calibration Scans](#taking-calibration--commissioning-data);
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 # Test Stand Ettiquette
 --------------------
@@ -129,6 +138,8 @@ Once you realize this you should:
 2. [Request time on a test stand](#requesting-time-on-gem-test-stands), and
 3. Use the [appropriate e-log](#electronic-logbook) to log all activities.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Available Test Stands & Their Uses
 The following 904 test stands exist.
 
@@ -139,6 +150,8 @@ The following 904 test stands exist.
 | QC8 | GEM 904 Lab | Production test stand for GE1/1 qualification. |
 
 Unless you are involved in, or performing a test for, the sustained operations group or QC8 for GE1/1 qualification you should default to using the "Coffin" setup.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Test Stand Infrastructure
 
@@ -161,6 +174,8 @@ When using a test stand you should:
  3. Summarize the actions taken and the result(s)/problem(s) encountered, and
  4. State when you are finished using the stand
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Requesting Time on GEM Test Stands
 
 Each stand has it's own requisition page on SuperSAAS to manage testing and ensure we do not collide with other users.  To see the available test stands and to request time on nagivate to:
@@ -178,6 +193,8 @@ Before trying to modify the above schedules you'll need to first ask for the GEM
 - Description of your test.
 
 Your request will be submitted and then approved. Note you may only use the stand once the request has been *approved*.  Once your request has been approved and you start using the stand you still are require to make an elog entry documenting the actiosn you have taken, their outcome, and relevant commands, etc...
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 # Back-end Electronics
 --------------------
@@ -214,6 +231,8 @@ Some useful commands are:
  - `rd` DAQ Link reset,
  - `st` Display AMC13 Status (see [Checking Status of a Given Crate](#checking-status-of-a-given-crate)),
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Enabling Clock to an AMC Slot
 
 To enable 
@@ -225,6 +244,8 @@ en <slots> t
 
 Here XX is the uTCA shelf number (e.g. `XX = 01` for most setups), note this is *always* represented with two digits even if the shelf number is less than 10.  The second command ensures all slots have a clock.  The third command will enable the slots of interest and place the AMC13 in loop back mode (drop the `t` for P5 operation).  Here `<slots>` is a comma and dash separated list, e.g. `en 2-5,7 t` will enable slots 2 *through* 5 and slot 7.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Checking Status of a Given Crate
 
 To check the status of a particular AMC13 enter the `AMC13Tool2.exe` and execute one of four options:
@@ -233,6 +254,8 @@ To check the status of a particular AMC13 enter the `AMC13Tool2.exe` and execute
  - `st 2` as `st` but shows additional information about enabled AMC slots,
  - `st 3` as `st 2` but also shows clock frequency information and FPGA voltage and temperature
  - `st 99` shows all status information (large text dump)
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Dumping Current Register Information
 
@@ -243,6 +266,8 @@ In some cases you might need to make a dump of all information on the AMC13 (e.g
 ```
 
 This will dump the current configuration to a text file and in the terminal output the filepath will be printed.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Updating FW
 
@@ -255,9 +280,13 @@ Have your test stand sysadmin execute the following procedure:
 
 Note if you execute step 4 without step 3 succeeding you could brick the board and by extension the uTCA crate. An example of a successful firmware upgrade can be found in this [elog entry](http://cmsonline.cern.ch/cms-elog/946282).
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Reloading FW
 
 To reload the FW in the AMC13 enter the `AMC13Tool2.exe` tool and execute `reconfigureFPGAs`. Note this will cause the card to be non-responsive for a small amount of time.  Additionally it will necessasitate a reload of FW of everything downlink of the AMC13 (e.g. any CTP7's in the uTCA crate, any OH's on those CTP7s, reconfiguring any VFATs on those CTP7's, etc...).  This action should typically note be done except in the most dire of circumstances (e.g. when any and all other troubleshooting actions have been attempted, and failed).  This will then require the user to re-enable the clock to all AMC slots of interest in a crate following instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## CTP7
 
@@ -362,6 +391,8 @@ lrwxrwxrwx    1 51446    1399            24 Aug  8 15:41 optohybrid_registers.xm
 
 Finally any action taken on a CTP7 should be recorded in full on the elog that corresponds to the system the card is on.  See [Electronic Logbook](#electronic-logbook) for details on which elog is of interest and how to make a proper elog. 
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### CTP7 Filesystem Stuck as readonly?
 
 More recent linux images of the CTP7 have placed the `/mnt/persistent/` partition as `readonly`.  To resolve this the test stand sysadmin should be contacted.  The should edit:
@@ -386,6 +417,8 @@ mount -o remount,rw /dev/mmcblk0p3 /mnt/persistent
 mount -o remount,rw /dev/mmcblk0p1 /mnt/image
 mount -o remount,rw /dev/mmcblk0p2 /mnt/image-persist
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Setting up a *new* CTP7
 
@@ -413,6 +446,8 @@ python $XHAL_ROOT/python/reg_interface/reg_interface.py -n ${ctp7host} -e update
 ```
 
 Note the instructions shown in this section reflect the "pre-packing" instructions 
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Updating the Linux Image on a CTP7
 
@@ -462,6 +497,8 @@ eagle26:~$ cat /mnt/image-persist/build_id
 CTP7-GENERIC-20180529T153916-0500-4935611
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### The `rpcsvc` Service
 
 Many actions on the card requie the Remote Procedure Call (RPC) service to be running and owned by the `gemuser` account.  This service is run as a system process called `rpcsvc`.  To check if this process is running login to the CTP7's linux image an execute:
@@ -485,6 +522,8 @@ Sometimes you may need to restart the `rpcsvc` (typically after updating the `rp
 ```bash
 killall rpcsvc && rpcsvc
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### RPC Modules and the LMDB
 
@@ -545,6 +584,8 @@ tail -25 /var/log/messages
 
 This will display the last 25 lines in the log file on the CTP7 (executed as `gemuser` on the CTP7). Use the `tail` command similarly to view the log on the DAQ PC.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Restarting `syslogd`
 
 In some weird cases `syslogd` will not be running after the CTP7 boots.  This will cause the log file:
@@ -567,6 +608,8 @@ S     0  9161     1  2792    64 0:0   13:31 00:00:00 /sbin/syslogd -R
 192.168.0.180 -L -s 1024 -b 8
 S     0  9163  9146  2796   288 pts4  13:32 00:00:00 grep syslog
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Using `gem_reg.py`
 
@@ -607,6 +650,8 @@ Here a node is a particular point in the xml address table, nodes typicall go as
 
 Note while running `gem_reg.py` while issuing a KeyboardInterrupt (i.e. pressing `Ctrl+C`) this will *not* terminate `gem_reg.py` but it *will* kill the rpc connection, a new connection must be opened with the `connect` command afterward.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Getting Info About a Register
 
 To get the documentation for a given register you need to call `doc` on the full node name, for example:
@@ -632,6 +677,8 @@ Here the above are:
 
 Note that if you write to a given address (e.g. as in an `rpc` module) without using the node name you need to carefull apply the mask or you risk changing the value of other nodes which share the same 32-bit register. 
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Updating the LMDB
 
 This action should only ever be taken by the sysadmin of the test stand.
@@ -643,6 +690,8 @@ update_lmdb /mnt/persistent/gemdaq/xml/gem_amc_top.xml
 ```
 
 If an error was reported when trying to update the lmdb than it has failed and you must investigate the problem, solve it, and then update the lmdb again. Note even though this references `gem_amc_top.xml` and not `optohybrid_registers.xml` it **will** update the OH registers in the LMDB due to how the software functions.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Reprogramming a CTP7
 
@@ -660,6 +709,8 @@ cold_boot.sh
 
 It is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot)
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ##### v3 Hardware
 
 The v3 hardware requires a different polarity of come of the CXP's on the CTP7, in this case one should call on the CTP7:
@@ -669,6 +720,8 @@ cold_boot_invert_tx.sh
 ```
 
 As in the v2b case it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot)
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Full Recovery: `recover.sh`
 
@@ -686,9 +739,13 @@ This will be a symlink to either `recover_v2.sh` or `recover_v3.sh` in the `/mnt
  - place the OH FW into the CTP7 RAM for PROM-less (e.g. `BLASTER(tm)` programming), and 
  - disable forwarding of TTC resets to the front-end.
 
-Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` again.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
+Again, it is critical to ensure that all `GTH Status` values (0 through 35) return `0x7`.  If `0x6` is returned then you'll need to call `cold_boot_invert_tx.sh` (`cold_boot.sh`) if you are working with v3 (v2b) electronics.  If any other value is returned (e.g. `0x0`) the CTP7 may not be receiving a clock from the `AMC13` and you'll need to check that the AMC13 is configured correctly, see instructions under [Enabling Clock to an AMC Slot](#enabling-clock-to-an-amc-slot).  Sometimes this will not enable `rpcsvc` or `ipbus` correctly.  After calling `recover.sh` it is important to check if `rpcsvc` and `ipbus` are running on the card.
 
 An example of a successful recovery is illustrated in this [elog entry](http://cmsonline.cern.ch/cms-elog/1060543).
+
+Note that if you are calling this after the card has been rebooted or power cycled you should ensure the `texas` account is not the owner of the `rpcsvc` service.  You might have to login as the `texas` account and issue `killall rpcsvc` then logout and login under the `gemuser` account to issue the recover command.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### To Update OH FW on CTP7
 
@@ -741,6 +798,8 @@ cd /mnt/persistent/gemdaq/gemloader
     - Note this will kill any running process on the hardware, but if you're updating FW no one should be using the system anyway.
  31.  Summarize the actions you took in the elog entry you have already opened.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Preparing For a Power Cut
 
 In order to safely prepare a GEM test stand for a planned power cut execute:
@@ -753,6 +812,8 @@ In order to safely prepare a GEM test stand for a planned power cut execute:
      - Gently pull the hot swap tab on the MCH. Again, wait until the blue LED stays solid on.
  5. Power down the µTCA crate Power Modules one at a time. Find the AC/DC converters powering the PM's and turn them off one at a time. They can either be built in the crate or external to the crate. In the first case, a switch is present on the crate front panel.
  6. Finally, power off the DAQ computer.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Recovering From a Power Cut
 
@@ -781,6 +842,8 @@ To recover a GEM test stand after a power cut execute:
 
 These instructions assume you are working with a system that is setup for v3 electronics.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 # Front-end Electronics
 --------------------
 
@@ -791,6 +854,8 @@ Two LV settings are recommended depending on what equipment you have available. 
 If your power supply cannot supply higher than 8V (e.g. A3016) than use 6.5V at the LV terminals of the detector.  Here the system will draw closer to ~5.5A when fully configured (VFATs in sleep mode) and move to ~6A when VFATs are placed in run mode.  Note the FEASTs here will be much less efficient and may overheat easily.  Normally this happens to the F1 and/or F2 FEASTs which respectively supply the FPGA core voltage or VTRx/VTTx power.  It's recommended to have a fan over these FEASTs and heat sinks on *all* FEASTs.
 
 Note the voltage at the power supply will *not* be the voltage at the terminals, especially if your cable is long.  It is recommended to use a voltage drop compensating power supply with sense wires at the LV cable connector to the detector patch panel.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## FEASTMP
 
@@ -806,9 +871,13 @@ The [FEASTMP](https://project-dcdc.web.cern.ch/project-dcdc/public/Documents/FEA
 
 Again it is recommended to apply heat sinks to *all* FEASTs and specifically to air cool with a fan F1 and F2.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## GBTx
 
 The [GBTx](http://iopscience.iop.org/article/10.1088/1748-0221/10/03/C03034/meta) is a radiation hard gigabit transceiver for optical links which provides simultaneous transfer of readout data, timing and trigger signals, as well as slow control and monitoring information.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### E-link Assignment in GE1/1
 
@@ -843,6 +912,8 @@ For the GE1/1 optohybrid v3 (any version) the correspondence between vfat positi
 
 Please note that GBTx0 doesn't use all its e-links for VFAT communication as it is also responsible for SCA & FPGA communication on the optohybrid v3 (any version).
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Programming GBTx
 
 #### Via Dongle: `gbtProgrammer`
@@ -873,6 +944,8 @@ In some cases the readback state will read `idle 18h` but communication with the
 
 Note that while monitoring is running the USB cable will induce a large amount of noise into the front-end electronics.  This will be detected by scurves having a much larger width.  If monitoring is running, your noise will be higher and this can disturb data-taking.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ##### Manually Writing Charge Pump Current
 
 Ask the sysadmin of your test stand if it is necessary to change the charge pump current value of the GBT after programming with the USB dongle, if so while having `gbtProgrammer` open execute:
@@ -881,6 +954,8 @@ Ask the sysadmin of your test stand if it is necessary to change the charge pump
  2. In the bottom right corner, insert `35` as `Register #` and the press `READ`.
  3. The correct value should be `F2` and usually it’s already in the register. 
  4. If it’s not, insert `F2` the click Write (hex) value, press `WRITE` and repeat step 2.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Over Fiber: `gbt.py`
 
@@ -898,6 +973,8 @@ The GBTx will now be programmed. The GBT config files a CTP7 can be found under:
 /mnt/persistent/gemdaq/gbt
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Performing a GBT Phase Scan
 
 Again, the GBTx must be at least minimally fused (so that it locks to the fiber link) and the `I2C` jumper for the GBTx in question must *not* be in place (e.g. open circuit).  Before proceeding please check that the GBTx communication is good by following instructions to check the GBTx status on a given ON under Section [GBT_READY Registers](#gbt_ready-registers).  Once communication is enabled exectue the following procedure:
@@ -911,6 +988,8 @@ This will scan all phases for all e-links on this GBTx and report whether the ph
 ```
 /mnt/persistent/gemdaq/gbt
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Fusing
 
@@ -954,6 +1033,80 @@ This can only be done with the USB dongle and this should be done only by true h
 
 The GBTx is now fused.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+#### `writeGBTPhase.py`: Manually writing the GBT e-link phase for a given VFAT
+
+You can write the GBT e-link phase for a given VFAT or all VFATs using the `writeGBTPhase.py` tool by calling from the DAQ machine:
+
+```bash
+$writeGBTPhase.py -h
+usage: writeGBTPhase.py [-h] {single,all} ...
+
+Tool for writing GBT phase for a single or all elink
+
+positional arguments:
+  {single,all}  Available subcommands and their descriptions.To view the sub
+                menu call writeGBTPhase.py COMMAND -h e.g.
+                writeGBTPhase.py single -h
+    single      write GBT phase for single VFAT
+    all         write GBT phase for all VFAT
+
+optional arguments:
+  -h, --help    show this help message and exit
+```
+There are two sub-commands `single` and `all`. To check their details:
+
+```bash
+$writeGBTPhase.py single -h
+usage: writeGBTPhase.py single [-h] shelf slot vfat phase link
+
+positional arguments:
+  shelf       uTCA shelf number
+  slot        AMC slot number in the uTCA shelf
+  vfat        VFAT number on the OH
+  phase       GBT Phase Value to Write
+  link        OH number on the AMC
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+and
+```bash
+$writeGBTPhase.py all -h
+usage: writeGBTPhase.py all [-h] shelf slot gbtPhaseFile
+
+positional arguments:
+  shelf         uTCA shelf number
+  slot          AMC slot number in the uTCA shelf
+  gbtPhaseFile  File having link, vfat and phase info.
+                The input file will look like:
+                --------------------------
+                link/i:vfatN/i:GBTPhase/i:
+                4    0    7
+                4    1    9
+                4    2    13
+                --------------------------
+
+optional arguments:
+  -h, --help    show this help message and exit
+```
+
+For example:
+
+1. If you want to write phase for single VFAT:
+   ```bash
+   writeGBTPhase.py single 1 6 23 7 3
+   ```
+   this will write the phase 7 to VFAT23 on `(shelf,slot,link) = (1,6,3)`.
+2. If you want to write phase for all VFAT using input text file as expected by the script:
+   ```bash
+   writeGBTPhase.py all 1 6 $DATA_PATH/GE11-X-S-INDIA-0015/gbtPhaseSetPoints_GE11-X-S-INDIA-0015_current.log
+   ```
+   Here, we assumed that we are reading the detector `GE11-X-S-INDIA-0015`. This will write phases for all VFATs on `(shelf, slot) = (1, 6)` for the link told by the text file.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### GBT_READY Registers
 
 There are a set of registers for each optohybrid in the CTP7 FW that provide information about the GBTx status.  To read these reigsters for the X^th optohybrid from `gem_reg.py` execute:
@@ -986,6 +1139,8 @@ If `GBTY_READY` is not `0x1` or `GBTY_WAS_NOT_READY` stays `0x1` after [Issuing 
  - The TX from the CTP7 to the GBTx is going into the left position (OH is oriented with FPGA facing you and VTTx/VTRx are pointing towards the floor) of the VTRx that corresponds to this GBTx, or
  - The TX from the GBTx to the CTP7 makes it to the CTP7 fiber patch panel.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Issuing a GBT Link Reset
 
 To reset the GBT links and send the VFAT synchronization command execute:
@@ -1003,6 +1158,8 @@ If your GBTx communication is stable this will reset the following registers to 
 
 This will be applied to all optohybrids and VFATs on the CTP7.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Slow Control ASIC (SCA)
 
 ### Voltage & Temperature Monitoring
@@ -1012,23 +1169,27 @@ This will be applied to all optohybrids and VFATs on the CTP7.
 
 The `sca.py` is a command line tool for sending a variety of commands to the SCA.  For a description of the possible commands and their calling syntax execute `sca.py -h` for more information.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Issuing an SCA Reset
 
 To issue an SCA reset execute the following from the DAQ PC:
 
 ```bash
-sca.py cardName ohMask r
+sca.py r cardName ohMask
 ```
 
 For example:
 
 ```bash
-sca.py eagle60 0x3 r
+sca.py r eagle60 0x3
 ```
 
 This will issue an SCA reset to OH's 0 and 1 on `eagle60`.
 
 If a red error message appears for one or more of the OH's in your `ohMask` re-issue the SCA reset until no red error messages appear. For subsequent SCA resets issued in this way you can use the same `ohMask` or modify it to remove the healthy OH's.  If continuing to issue an sca reset does not resolve the issue (i.e. red error messages continue to appear) there is a problem and you probably lost communication.  In this case check the status of `GBT0` on each of the problem GBTs using instructions under [GBT_READY Registers](#gbt_ready-registers), if GBTX is either not ready or was not ready you may need to either issue a GBTx link reset (see [Issuing a GBT Link Reset](#issuing-a-gbt-link-reset)), re-program GBT0 (see [Programming GBTx](#programming-gbtx)), or in rare cases power cycle and start from scratch.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Checking SCA Status
 
@@ -1040,6 +1201,8 @@ GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR
 ```
 
 Each is a 12 bit register with the N^th bit corresponding to the N^th optohybrid.  In the case of `READY` if the N^th bit is raised high (e.g. it equals 1) it means the link is ready and communication is most likely stable (although in some cases the READY bit for a given optohybrid is 1 but slow control is not possible).  In the case of `CRITICAL_ERROR` if the N^th bit is raised high (e.g. it equals 1) it means the SCA controller on the N^th optohybrid has encountered a critical error and needs an SCA reset.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Using `amc_info_uhal.py`
 
@@ -1074,6 +1237,8 @@ NOT_READY_CNT_OH11 0x00000001
 
 Note that `ipbus` service must be running on the CTP7.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Using `gem_reg.py`
 
 You can get the SCA status on all optohybrids on a CTP7 from `gem_reg.py` using the following command, with example output:
@@ -1091,6 +1256,10 @@ eagle60 > read GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR
 
 Here we see that SCA READY is `0x2` so only OH1 has stable communication and no links are in error (critical error is `0x0`).
 
+Note that `rpcsvc` must be running on the CTP7.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### VFAT Reset Lines
 
 In the OHv3c version the VFAT reset lines are controlled by the SCA and not the OH FPGA.  In CTP7 firmware versions higher than 3.5.2 the resets will automatically be lifted and no user action is required.  On older CTP7 FW versions to lift the VFAT resets first program the OHv3c FPGA following instructions under Section [Programming OH FPGA](#programming-oh-fpga) then execute:
@@ -1103,9 +1272,13 @@ In the OHv3c version the VFAT reset lines are controlled by the SCA and not the 
  6. Report the status of sync error counters of all VFATs (`kw SYNC_ERR_CNT 0`),
  7. Check for slow control of al VFATs (`kw CFG_RUN 0`)
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Optohybrid (OH) FPGA
 
 Unlike the OHv2b the OHv3 FPGA is not responsible for slow control or data transfer of tracking data from the VFATs.  The OHv3 deals only with sending the VFAT trigger data to the CSC TMB and GEM CTP7.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Programming OH FPGA
 
@@ -1138,6 +1311,8 @@ Failure to program the FPGA in our experience usually comes from:
  1. Hardware problem,
  2. Failure to execute the procedure in the correct order
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Checking Trigger Link Status
 
 To check the status of the OH-CTP7 trigger link for OHY execute:
@@ -1160,7 +1335,7 @@ eagleXX > kw GEM_AMC.TRIGGER.OHY.LINK
 0x66000e90 r    GEM_AMC.TRIGGER.OHY.LINK1_UNDERFLOW_CNT                 0x00000000
 0x66000e94 r    GEM_AMC.TRIGGER.OHY.LINK0_SYNC_WORD_CNT                 0x00000000
 0x66000e94 r    GEM_AMC.TRIGGER.OHY.LINK1_SYNC_WORD_CNT                 0x00000000
-``` 
+```
 
 If your link does not look like the above the link is not healthy.  First try reseting the counters and then reading them again by executing:
 
@@ -1178,17 +1353,27 @@ If your link still does not match the example above try the following:
     - the VTTX may not be receiving the correct voltage, check that the 2.5V pin on the OH; with no load it should be between [2.45, 2.66]V.
  2. Try reloading the firmware to the OHv3 by following instructions under Section [Programming OH FPG], in rare cases the Trigger block of the OH FW does not start properly.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Masking VFATs From Trigger
 
 You can write a 24 bit mask to `GEM_AMC.OH.OHX.FPGA.TRIG.CTRL.VFAT_MASK` to mask a given set of VFATs from the trigger, having a 1 in the N^th bit means the N^th VFAT will be masked.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Temperature Monitoring
 
 The OH has the FPGA core temperature accessible from the sysmon registers in the OHv3 address table and nine PT100 sensors located around the board.  These PT100 sensors are read by the SCA when monitoring is enabled, see [Voltage & Temperature Monitoring].
 
+SCA gives output in the ADC counts. For the details of how the conversions for temperature and voltages are done look [here](docs/SCA_temperature_voltage_unit_conversion.md)
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## VFAT3
 
 For an indepth guide on the VFAT3 please consult the VFAT3 Manual availabe [here](https://espace.cern.ch/cms-project-GEMElectronics/VFAT3/Forms/AllItems.aspx).  The VFAT3 is a much more complicated ASIC than VFAT2 and requires a little bit more knowledge to successfully use.  While the VFAT3 manual should serve as the end-all-be-all reference on the ASIC here we present some useful information.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### General Overview of VFAT3
 
@@ -1237,8 +1422,8 @@ The calibration module can inject charge either in current injection of voltage 
 Both the comparator and the calibration module can be configured to look at (inject) either positve or negative polarity pulses.  For calibration scans to be effective the polarity of the calibration module must match the polarity expected by the comparator.  Additionally during data taking the polarity the comparator should match the polarity of the GEM signal (i.e. negative polarity).  To ensure there are no mistakes both polarities are set such that:
 
 ```
-CFG_SEL_POL = 0x1
-CFG_CAL_SEL_POL = 0x1
+CFG_SEL_POL = 0x0
+CFG_CAL_SEL_POL = 0x0
 ```
 
 To ensure proper temperature reading and any DAC monitoring the `CFG_VREF_ADC` must be set such that this is as close to 1.0V as possible (again provided by VFAT3 team at production time).  The `HV3b_V2` hybrids only have the internal temperature sensor on the VFAT3 ASIC while `HV3b_V3` and `V4` hybrids have an external PT100 sensor for monitoring temperature.
@@ -1255,6 +1440,8 @@ Finally there are a few calibration coefficients that are needed:
 - `ADC1B`, as `ADC0B` but for `ADC1`,
 - `CAL_THR_ARM_DAC_M`, slope in `y=mx+b` for converting `CFG_THR_ARM_DAC` to `fC` (needed for trimming),
 - `CAL_THR_ARM_DAC_B`, as `CAL_THR_ARM_DAC_M` but for intercept.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### DAC Monitoring
 
@@ -1294,6 +1481,8 @@ These can monitor the following values:
 |   40  |   ADC VinM    |   -   |   -   |   -   |   -   |   -   |   Fixed value, no register    |
 |   41  |   SLVS Vref   |   GBL_CFG_BIAS_6  |   [5:0]   |   0   |   0x3f    |   ?   |   Does not appear in Section 7.5 Registers    |
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Checking VFAT Registers
 
 Presently `vfat_info_uhal.py` does not have functionality for monitoring v3 electronics.  In the meantime you can get information on VFATY of OHX from `gem_reg.py` by executing:
@@ -1308,6 +1497,8 @@ This will print the values of all global registers for this vfat.  Information a
 ```
 kw GEM_AMC.OH.OHX.GEB.VFATY.VFAT_CHANNELS.CHANNELZ
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Checking VFAT Synchronization
 
@@ -1325,6 +1516,8 @@ Typical causes of bad communication are:
  - the vfat is not physically present on the hardware,
  - the gbt phase setting for that e-link is bad, or
  - there is a problem with the hardware (VFAT, OH, or GEB).
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Configuration File on CTP7
 
@@ -1395,9 +1588,27 @@ BIAS_SD_I_BSF          15
 BIAS_SD_I_BFCAS       255
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 # Building GEM Software
 --------------------
-Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.  
+Building CMS GEM Online software is *only* supported on GEM DAQ 904 machines.
+Please note that you need to set the `BUILD_HOME` environment variable before building. Set this to be the folder in which you git clone `cmsgemos`. For example using bash: `export BUILD_HOME=~/Path/To/Folder`.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+## GEM RPM Location on 904 NAS
+--------------------
+
+If you are an authorized rpm builder you can place your compiled RPM's on the following location on the 904 NAS:
+
+```
+/data/bigdisk/sw/gemonlinesw/repos/centos7_x86_64/
+```
+
+Additionally if your a sysadmin you can find compiled RPM's at this location
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Build Prerequisites: The gembuild repo
 
@@ -1415,6 +1626,8 @@ periodically the `gembuild` repository may change and you may need to update the
 cd <repo folder>
 git submodule update
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## `cmsgemos`
 
@@ -1434,9 +1647,9 @@ make rpm
 For each subpackage you will find both a `*.rpm` and a `*.tgz` file inside an `rpm/` subdirectory inside the subdirectory.  For example for `gempython` you'll find under `cmsgemos/gempython/rpm` many files, but the most recent versions of the following files:
 
 ```bash
--rw-r--r--. 1 user zh  49K Sep 19 11:18 cmsgemos_gempython-*.tgz
--rw-r--r--. 1 user zh 2.1K Sep 19 11:18 cmsgemos_gempython-debuginfo-*.cc7.python2.7.x86_64.rpm
--rw-r--r--. 1 user zh 106K Sep 19 11:18 cmsgemos_gempython-*.cc7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  49K Sep 19 11:18 cmsgemos_gempython-*.tgz
+-rw-r--r--. 1 user group 2.1K Sep 19 11:18 cmsgemos_gempython-debuginfo-*.cc7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group 106K Sep 19 11:18 cmsgemos_gempython-*.cc7.python2.7.x86_64.rpm
 ```
 
 will be of interest to you.  The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
@@ -1444,6 +1657,8 @@ will be of interest to you.  The wildcard `*` will have the information on the t
 The `*.rpm` file can be installed on a DAQ machine, or upgrade an existing installed version (assuming the tag number is higher than the existing installed version), with `yum` and in the case of `gempython` a `*.tgz` file which can be installed into a python `virtualenv` with `pip`.
 
 If you are generating an installable `rpm` for a DAQ machine it's best to check with `GEM RC` what tag should be used. 
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ### Compiling Only `gempython`
 
@@ -1467,6 +1682,8 @@ If you are not interested in generating the `rpm` you can substitute `make pip` 
 pip install cmsgemos/gempython/rpm/cmsgemos_gempython-<version>.tgz --no-deps
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Configuring your `$ENV` for testing
 
 It's important to keep in mind `cmsgemos` has several dependencies which you may be required to set by hand.  If you are looking to test changes to only `cmsgemos` or some SW package "downstream" of cmsgemos (e.g. `vfatqc-python-scripts`) then you may use the system installed dependencies.  If you have already configured your `virtualenv` with the installed packages then you can either setup the `$ENV` by hand, or you can use the [setup_gemdaq.sh](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/scripts/setup_gemdaq.sh) script via:
@@ -1476,7 +1693,9 @@ cd <your working directory>
 source setup_gemdaq.sh
 ```
 
-Note if this is your first time calling `setup_gemdaq.sh` please first call the help menu to see how to setup a `virtualenv` using this script.  An example is presently provided [here](https://github.com/cms-gem-daq-project/gem-plotting-tools#setup).
+Note if this is your first time calling `setup_gemdaq.sh` please first call the help menu to see how to setup a `virtualenv` using this script.  An example is presently provided [here](https://github.com/cms-gem-daq-project/gem-plotting-tools#setup); in this example a `python` `virtualenv` will be setup and the `cmsgemos_gempython` and `gempython_gemplotting` packages will be installed inside of it.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## `ctp7_modoules`
 
@@ -1508,6 +1727,37 @@ ctp7_modules/lib
 
 These `*.so` files can be uploaded to the `CTP7` by the test stand sysadmin (for production test stands) or developers (for development test stands).
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+## `gem-plotting-tools`
+
+Execute the following:
+
+```bash
+cd gem-plotting-tools
+git tag <tag number>
+make clean && make rpm
+```
+
+this will generate the following files:
+
+```bash
+% ll gem-plotting-tools/rpm
+-rw-r--r--. 1 user group 226K Mar 12 13:55 gempython_gemplotting-*.tgz
+-rw-r--r--. 1 user group 308K Mar 12 13:55 gempython_gemplotting-*.src.rpm
+-rw-r--r--. 1 user group 320K Mar 12 13:55 gempython_gemplotting-*.noarch.rpm
+```
+
+The wildcard `*` will have the information on the tag number (for the `*.tgz` file) and tag number plus git commit (for `*.rpm` files).  The `rpm` can be used to install the `gemplotting` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  The `*.tgz` file can be used to install the `gemplotting` package into your `virtualenv` by executing:
+
+```bash
+pip install -U gem-plotting-tools/rpm/gempython_gemplotting-<tag number>.tgz
+```
+
+Note it is assumed you've already activated your `virtualenv`
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## `vfatqc-python-scripts`
 
 Execute the following:
@@ -1530,9 +1780,9 @@ this will generate the following files:
 
 ```bash
 % ll vfatqc-python-scripts/rpm 
--rw-r--r--. 1 user zh  42K Sep 19 11:56 gempython_vfatqc-*.tar.gz
--rw-r--r--. 1 user zh 1.9K Sep 19 11:56 gempython_vfatqc-debuginfo-*centos7.python2.7.x86_64.rpm
--rw-r--r--. 1 user zh  89K Sep 19 11:56 gempython_vfatqc-*centos7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  42K Sep 19 11:56 gempython_vfatqc-*.tar.gz
+-rw-r--r--. 1 user group 1.9K Sep 19 11:56 gempython_vfatqc-debuginfo-*centos7.python2.7.x86_64.rpm
+-rw-r--r--. 1 user group  89K Sep 19 11:56 gempython_vfatqc-*centos7.python2.7.x86_64.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tar.gz` or `*.tgz` file) and tag number plus git commit (for `*.rpm` files).  The `rpm` can be used to install the `vfatqc` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  The `*.tar.gz` or `*.tgz` file (you may only see one depending on which branch you are developing from, `develop` or `rpc-playground`) can be used to install the `vfatqc` package into your `virtualenv` by executing:
@@ -1542,6 +1792,8 @@ pip install -U vfatqc-python-scripts/rpm/gempython_vfatqc-<tag number>.tar.gz
 ```
 
 Note it is assumed you've already activated your `virtualenv`
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## `xhal`
 
@@ -1554,6 +1806,8 @@ export PETA_STAGE=/data/bigdisk/sw/peta-stage
 source /data/bigdisk/sw/Xilinx/SDK/2016.2/settings64.sh
 source /opt/rh/devtoolset-6/enable
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Compiling the entire libary
 
@@ -1584,6 +1838,8 @@ xhal/xhalcore/lib
 
 Typically you will not be interested in files under `xhal/xhalarm` unless you are also responsible for maintaining your test stand's backend electronics (e.g. `CTP7`, `GLIB` or other `AMC`).
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 #### Compiling only the python tools
 
 It is assumed you have setup the computing environment. To compile only the python tools execute:
@@ -1598,9 +1854,9 @@ This will generate the following files:
 
 ```bash
 % ll xhal/python/reg_interface_gem/rpm 
--rw-r--r--. 1 user zh  19K Sep 17 15:02 reg_interface_gem-*.centos7.python2.7.noarch.rpm
--rw-r--r--. 1 user zh 7.7K Sep 17 15:02 reg_interface_gem-*.tgz
--rw-r--r--. 1 user zh  20K Sep 17 15:02 reg_interface_gem-*.peta_linux.python2.7.noarch.rpm
+-rw-r--r--. 1 user group  19K Sep 17 15:02 reg_interface_gem-*.centos7.python2.7.noarch.rpm
+-rw-r--r--. 1 user group 7.7K Sep 17 15:02 reg_interface_gem-*.tgz
+-rw-r--r--. 1 user group  20K Sep 17 15:02 reg_interface_gem-*.peta_linux.python2.7.noarch.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
@@ -1614,6 +1870,8 @@ pip install -I xhal/python/reg_interface_gem/rpm/reg_interface_gem-<tag number>.
 and the `centos7` `rpm` can be used to install the `reg_interface_gem` package onto your DAQ machine or upgrade an existing version (assuming the tag number is higher than the existing version).  Note that `reg_interface_gem` `rpm` requires the `reg_interface` package from the `reg_utils` repository.
 
 Note it is assumed in the `pip install` command shown above that you have already activated your python `virtualenv`.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 #### Compiling only the DAQ Machine C++ libraries
 
@@ -1629,11 +1887,11 @@ This will generate the following files:
 
 ```bash
 % ll xhal/xhalcore/lib 
--rwxr-xr-x. 1 user zh 1.1M Sep 19 10:50 libxhal.so
--rwxr-xr-x. 1 user zh 615K Sep 19 15:48 librpcman.so
+-rwxr-xr-x. 1 user group 1.1M Sep 19 10:50 libxhal.so
+-rwxr-xr-x. 1 user group 615K Sep 19 15:48 librpcman.so
 % ll xhal/xhalcore/rpm 
--rw-r--r--. 1 user zh  11K Sep 19 15:48 xhal-devel-*.centos7.gcc6_3_1.x86_64.rpm
--rw-r--r--. 1 user zh 2.3M Sep 19 15:48 xhal-*.centos7.gcc6_3_1.x86_64.rpm
+-rw-r--r--. 1 user group  11K Sep 19 15:48 xhal-devel-*.centos7.gcc6_3_1.x86_64.rpm
+-rw-r--r--. 1 user group 2.3M Sep 19 15:48 xhal-*.centos7.gcc6_3_1.x86_64.rpm
 ```
 
 The wildcard `*` will have the information on the tag number (for the `*.tgz file) and tag number plus git commit (for `*.rpm` files).
@@ -1661,6 +1919,8 @@ cd xhal/xhalcore/lib
 export LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ### Legacy Pre-Packaging Instructions for Tag 3.2.2
 
 Note the shell variable `BUILD_HOME` is expected to exist and be the top level directory in the area where all your SW repositories are checked out and built from.
@@ -1677,6 +1937,8 @@ source setup.sh
 python .github/get_binaries.py -t 3.2.2 -l .github/uploads.cfg
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 # Common Slow Control Actions
 --------------------
 ## Checking Firmware Version
@@ -1686,6 +1948,8 @@ To get the firmware version of a CTP7 and all its programmed OH's from `gem_reg.
 ```
 kw RELEASE
 ```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Checking CTP7 Mapping Register
 
@@ -1698,6 +1962,7 @@ eagle60 > kw MAPPING
 
 Writing this register to `0x0` will switch to `OHv3a` e-link assignment.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Checking Trigger Rates
 
@@ -1709,6 +1974,8 @@ To see the trigger rate each VFAT is sending on OHX execute in `gem_reg.py`:
 kw GEM_AMC.OH.OHX.FPGA.TRIG.CNT.VFAT
 ```
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Getting Info About the CTP7
 
 If your CTP7 is in shelf `X` slot `Y` execute:
@@ -1718,6 +1985,8 @@ amc_info_uhal.py --shelf=X -sY
 ```
 
 This will print various info about the board, the DAQ link status, the TTC status, and the SCA status. Note that `ipbus` must be running on the CTP7.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Reading a Register Repeatedly
 
@@ -1729,8 +1998,82 @@ repeated_reg_read.py REGISTER_NAME X Y --card eagleXX
 
 This will read register `REGISTER_NAME` `X` times, pausing `Y` microseconds between each read. Results are written to terminal and also an output text file: `[filename].txt`. `Y` should be set to >= 250 microseconds.
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 # Configuring a Detector
 --------------------
+
+## Using `testConnectivity.py` to Configure a Detector (Recommended)
+
+The `testConnectivity.py` script is a routine which allows you to establish communication with the frontend electronics for one or more detectors.  It can be used to automatically scan all VFAT3 DACs involved in the analog portion of the front-end; it will also automatically analyze this data to determine the correct DAC settings needed to determine the proper bias current and voltages for each DAC.  Finally, it can be used to automatically launch an scurve and analyze the data.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+### Routine to Establish Communication w/Detectors
+
+Assuming your back-end electronics are setup correctly you can configure the front-end electronics by executing the following steps:
+
+1. Power the LV of your detector(s),
+2. Determine the `shelf` number of your uTCA crate,
+3. Determine the `SLOT` of your AMC in the uTCA crate with the shelf number from step 2,
+2. Determine the `ohMask` of your detector(s) on your AMC in slot `SLOT`,
+   - Here the `ohMask` is a 12 bit number where a 1 in the N^th bit means "consider this OH."  So an `ohMask = 0xc4c` would mean to use OH's 2, 3, 6, 10 and 11.
+3. The execute:
+
+```bash
+testConnectivity.py --skipDACScan --skipScurve --nPhaseScans=100 SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
+```
+
+For each OH in `ohMask` this will:
+
+1. Check GBT communication & program GBTs,
+2. Check SCA communication & Reset SCAs,
+3. Program FPGA & Check Communication,
+   - Note this will issue a TTC hard reset to all OH's on the AMC in question; this will *wipe* out the frontend configuration and kill any running scan and stop any data-taking process.
+4. Scan GBT Phases & Set Each VFAT to a good phase, and
+5. Synchronize all VFATs and check VFAT communication.
+
+If you would like to start at a later step use the option `-f X` where `X` is the desired starting step, e.g. `-f 3` will start by programming the FPGA and checking FPGA communication (in this case it would be assumed that steps 1 & 2 have been completed by an earlier call of `testConnectivity.py` or by manual intervention).
+
+You can add the option `-i` to ignore VFAT synchronization errors.
+
+You can add the option `-a` to accept a bad trigger link status (e.g. trigger link fibers are not connected).
+
+You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
+
+```bash
+confChamber.py cardName -gX
+```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+### Automatic DAC Scan, Analysis & Upload of Parameters
+
+First upload the correct `CFG_IREF` values to the VFAT3 configuration files on the CTP7 in slot `SLOT` and prepare the `ADC0` calibration file under `${DATA_PATH}/${DETECTOR_SER_NO}/calFile_ADC0_{DETECTOR_SER_NO}.txt` for each detector defined in [chamber_config](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#the-mapping-file-chamberinfopy) dictionary. Note if the VFAT3's you're using have their chipID encoded with the [Reed-Muller Encoding Algorithm](https://en.wikipedia.org/wiki/Reed%E2%80%93Muller_code) and they are found in the VFAT3 production DB then you do not need to upload the `CFG_IREF` values yourself or prepare the `calFile_ADC0_{DETECTOR_SER_NO}.txt` file as this will be done for you.
+
+Then if you execute either:
+
+```bash
+testConnectivity.py --skipScurve SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
+```
+
+or 
+
+```bash
+testConnectivity.py -f5 --skipScurve SHELF SLOT OHMASK 2>&1 | tee connectivityLog.log
+```
+
+this will automatically perform a DAC scan, analyze the DAC scan results, and then upload the register values to the VFAT3 configuration files on the CTP7 in slot `SLOT`.
+
+You are now ready to issue a configure command.  The configure command is done with `confChamber.py`:
+
+```bash
+confChamber.py cardName -gX
+```
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
+## Manually Configuring a Detector
 
 Assuming your back-end electronics are setup correctly you can configure the front-end electronics by executing the following steps:
 
@@ -1748,38 +2091,34 @@ confChamber.py cardName -gX
 
 This will issue an RPC call to the CTP7 whose network alias is `cardName` and load all the per VFAT3 configuration settings in each of the VFAT3 configuration files (see [Configuration File on CTP7](#configuration-file-on-ctp7)) for optohybrid `X`. Note it is important to have edited each of these files to ensure the `CFG_IREF` value for your VFATs on all your optohybrid(s) is the unique value each chip needs.  
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
+
 ## Using `chamber_vfatDACSettings` to write common register values
 
-While some registers must be set by hand or by the `replace_parameter.sh` script described in [Configuration File on CTP7](#configuration-file-on-ctp7) since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `chamberInfo.py` file, this is either a symlink in the system installed package (which points to a user editable area):
+While some registers must be set by hand or by the `replace_parameter.sh` script described in [Configuration File on CTP7](#configuration-file-on-ctp7) since they are unique to each VFAT (e.g. `CFG_IREF` or registers that control a VFAT3's analog chain) some registers can be safely applied to all VFATs (e.g. setting the comparator mode, see [General Overview of VFAT3](#general-overview-of-vfat3)).  To do this easily, and without having to tediously modify many text files on the CTP7 the `chamber_vfatDACSettings` dictionary exists for this purpose. The `chamber_vfatDACSettings` dictionary is a nested dictionary found in the `system_specific_constants.py` file under `$PYTHONPATH` of your system:
 
 ```bash
-% ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-lrwxrwxrwx. 1 root root 62 Jul  9 09:49 /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py -> /home/gemuser/gemdaq/gem-plotting-tools/mapping/chamberInfo.py
+% $ locate system_specific_constants.py
+/home/gemuser/gemdaq/config/system_specific_constants.py
 ```
 
-Or it is installed inside your python `virtualenv` under:
-
-```bash
-$VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-```
-
-The `chamber_vfatDACSettings` dictionary is a nested dictionary where the outer key is the optohybrid number and the inner dictionary uses (key,value) pairs of (register name, value), example:
+The `chamber_vfatDACSettings` dictionary is a nested dictionary where the outer key is the geographic address (e.g. `ohKey`)-a tuple `(shelf,slot,link)` which specifices uTCA shelf number, AMC slot number, and optohybrid number-and the inner dictionary uses (key,value) pairs of (register name, value), example:
 
 ```python
 chamber_vfatDACSettings = {    
-        0:{
+        (1,4,2):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":97,
             "CFG_RES_PRE":2,
             "CFG_CAP_PRE":1,
             },
-        1:{
+        (1,4,3):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":98,
             "CFG_RES_PRE":2,
             "CFG_CAP_PRE":1,
             },
-        2:{
+        (1,4,6):{
             "CFG_PULSE_STRETCH":3,
             "CFG_LATENCY":99,
             "CFG_RES_PRE":2,
@@ -1797,6 +2136,7 @@ With these settings a call of `confChamber.py` will overwrite the values of:
 
 registers in the [Configuration File on CTP7](#configuration-file-on-ctp7) for all VFATs for optohybrids 0 through 2. 
 
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 # Taking Calibration & Commissioning Data
 --------------------
@@ -1810,6 +2150,8 @@ Additionally the scan routines rely on several blocks of the CTP7 FW:
  - etc...
  
 These blocks can only receive information from one optohybrid at a time and thus almost all scans presently have to be run in series; they *cannot* be run in parallel.  This will change as the SW tools develop.
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Getting the VFAT Mask: `getVFATMask.py`
 
@@ -1826,22 +2168,33 @@ The VFAT Mask you should use for OHY is: <some hex number>
 
 Here the `getVFATMask.py` tool was given `eagleXX` `OHY` and returns `some hex number` that is the VFAT mask for this optohybrid.
 
-## The Mapping File: `chamberInfo.py
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
-The `chamberInfo.py` file in addition to defining the `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)) also defines three other dictionaries: `chamber_config`, `GEBtype` and `chamber_vfatMask`.  These dictionaries allow automatic discovery of detector serial numbers, data paths, chamber type, and vfat mask.  As mentioned the `chamberInfo.py` file is either a symlink in the system installed package (which points to a user editable area):
+## The Mapping File: `chamberInfo.py`
 
-```bash
-% ll /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
-lrwxrwxrwx. 1 root root 62 Jul  9 09:49 /usr/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py -> /home/gemuser/gemdaq/gem-plotting-tools/mapping/chamberInfo.py
-```
-
-or it is installed inside your python `virtualenv` under:
+The `chamberInfo.py` file is either a system installed file or installed under your python `virtualenv` which loads the required python dictionaries from your setup's `system_specific_constants.py` file (found under `$PYTHONPATH`) at runtime.  You never have to change the `chamberInfo.py` file and you should only ever edit the `system_specific_constants.py` file via the `editConfig` alias on the user account, e.g. call:
 
 ```bash
-$VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py
+$ editConfig 
 ```
 
-The key values of the `chamber_config`, `GEBtype` and `chamber_vfatMask` are always the optohybrid number, this enables the three dictionaries to be easily linked (without having to keep track of `tuple` indices) and enable you to define your test stand by specifying which detector is on which optical link (e.g. optohybrid number), the detector type (i.e. "long" or "short") and the VFAT mask needed (usually use `0x0`).
+Once the `chamberInfo.py` file has loaded the information from `system_specific_constants.py` at runtime the python API will have a set of dictionaries:
+
+1. `chamber_config`,
+2. `GEBtype`, and
+1. `chamber_vfatDACSettings` dictionary (see [Using `chamber_vfatDACSettings` to write common register values](#using-chamber_vfatdacsettings-to-write-common-register-values)),
+
+These dictionaries will:
+
+- define which detectors are connected,
+- provide the mapping between detector serial numbers and geographic addresses, 
+- possible DAC values to use to overwrite values stored in the [VFAT3 configuration files on the CTP7](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#configuration-file-on-ctp7), 
+- the appropriate data paths to write output data too, and 
+- the chamber type.  
+
+The key values of the `chamber_config` and `GEBtype` are the geographic address (e.g. `ohKey`)-a tuple `(shelf,slot,link)` which specifices uTCA shelf number, AMC slot number, and optohybrid number-and enable you to define your test stand by specifying which detector is on which geographic address and what its detector type is, i.e. "long", "short", "m1", etc...
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)
 
 ## Taking Data: `run_scans.py`
 
@@ -1901,3 +2254,5 @@ optional arguments:
 ```
 
 Happy calibrating and commissioning!
+
+[Top](https://github.com/cms-gem-daq-project/sw_utils/blob/develop/v3ElectronicsUserGuide.md#table-of-contents)

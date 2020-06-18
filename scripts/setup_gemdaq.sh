@@ -255,11 +255,11 @@ then
         then
             if [ -z "$GEMPLOT_DEV_VERSION" ]
             then
-                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
-                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tgz
+                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tgz
             else
-                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
-                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tar.gz
+                echo $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tgz
+                $WGET https://github.com/cms-gem-daq-project/gem-plotting-tools/releases/download/v${GEMPLOT_VERSION}-dev${GEMPLOT_DEV_VERSION}/gempython_gemplotting-${GEMPLOT_VERSION}.tgz
             fi
         fi
         ls >/dev/null # Forces a filesystem sync
@@ -317,12 +317,13 @@ then
     export GEM_ADDRESS_TABLE_PATH=/opt/cmsgemos/etc/maps
     export REPO_PATH=/data/bigdisk/sw/gemonlinesw/repos/
 
-    # Setup LD_LIBARY_PATH
+    # Setup LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/xdaq/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/xhal/lib:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=${BUILD_HOME}/xhal/xhalcore/lib:$LD_LIBRARY_PATH
 
     # Add hardware access tools to PATH
     export PATH=/opt/cactus/bin/amc13/:$PATH
@@ -342,7 +343,7 @@ then
     # Misc
     #alias arp-scan='sudo /usr/sbin/arp-scan'
     alias arp-scan='ip n show dev "$@" to 192.168.0.0/16'
-    alias editConfig='vim $VIRTUAL_ENV/lib/python2.7/site-packages/gempython/gemplotting/mapping/chamberInfo.py'
+    alias editConfig='vim ${BUILD_HOME}/system_specific_constants.py'
     alias gbtProgrammer='java -jar /data/bigdisk/sw/GBTx_programmer/programmerv2.20180116.jar'
 
     # fedKit on gem904daq04
@@ -355,7 +356,7 @@ then
     # System Paths
     export DATA_PATH=/gemdata
 
-    # Setup LD_LIBARY_PATH
+    # Setup LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/cactus/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/rwreg/lib:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH=/opt/wiscrpcsvc/lib:$LD_LIBRARY_PATH
@@ -372,6 +373,11 @@ fi
 # Setup path
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/scripts:$PATH
 export PATH=$VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/macros:$PATH
+export PATH=$BUILD_HOME/sw_utils/python:$PATH
+export PATH=$BUILD_HOME/sw_utils/scripts:$PATH
+
+# Setup PYTHONPATH
+export PYTHONPATH=$BUILD_HOME:$PYTHONPATH
 
 # Create mapping files
 if [ ! -f $VENV_DIR/lib/python$PYTHON_VERSION/site-packages/gempython/gemplotting/mapping/shortChannelMap.txt ]

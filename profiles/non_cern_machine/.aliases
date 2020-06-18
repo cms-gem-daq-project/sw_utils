@@ -1,0 +1,8 @@
+# common function calls
+alias ll='ls -lhtr'
+
+# GEM DAQ function calls
+#alias AMC13Tool2.ext='/opt/cactus/bin/amc13/AMC13Tool2.exe -i gem.shelf01.amc13 -c $GEM_ADDRESS_TABLE_PATH/connections.xml'
+
+# ROOT calls
+alias root="root -l"

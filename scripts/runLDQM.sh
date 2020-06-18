@@ -5,22 +5,25 @@ Individually processes chunk files found in $DATA_PATH/Cosmics (or provided -p a
         Usage: mergeFiles.sh [options]
         Options:
             -d Outputs commands that will be executed, nothing is produced
-            -i initial chunk number to consider, defaults to 0
-            -f final chunk number to consider, if not provided all chunk files will be processed
+            -i initial chunk or lumi section number to consider, defaults to 0
+            -f final chunk or lumi section number to consider, if not provided all files will be processed
             -h prints this menu and exits
-            -p path to datafiles of the form 'runXXXXXX_Cosmic_CERNQC8_YYYY-MM-DD_chunk_*.dat'
-            -r run number of interest"
+            -p path to datafiles of the form 'runXXXXXX_Cosmic_CERNQC8_YYYY-MM-DD_chunk_*.dat' or 'runXXXXXX_ls*.raw'
+            -r run number of interest
+            -u unpacker uses the sdram headers, default is ferol"
 
 # Set Defaults
-FILEPATH="$DATA_PATH/Cosmics"
 DEBUG=""
-RUNNUMBER=""
-INITIALCHUNK=$((0))
+FILEPATH="$DATA_PATH/Cosmics"
 FINALCHUNK=$((-1))
+INITIALCHUNK=$((0))
+LOCALREADOUT=""
+RUNNUMBER=""
+UNPACKERHEADER="ferol"
 
 # Get Options
 OPTIND=1
-while getopts ":p:r:i:f:hdau" opts
+while getopts ":p:r:i:f:hd" opts
 do
     case $opts in
         p) 
@@ -31,6 +34,9 @@ do
             INITIALCHUNK="$OPTARG";;
         f)
             FINALCHUNK="$OPTARG";;
+        u)
+            LOCALREADOUT="true"
+            UNPACKERHEADER="sdram";;
         d)
             DEBUG="true";;
         h)
@@ -60,7 +66,6 @@ fi
 # Create the run number string
 RUNSTRING=""
 if (( ${RUNNUMBER} > 99999 )); then
-    echo "true"
     RUNSTRING="${RUNNUMBER}"
 elif (( ${RUNNUMBER} > 9999 )); then
     RUNSTRING="0${RUNNUMBER}"
@@ -74,45 +79,112 @@ else
     RUNSTRING="00000${RUNNUMBER}"
 fi
 
-# Loop over files found in FILEPATH
-for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat
-do
-    chunkNumber=$(echo $file 2>/dev/null | awk -F _ '{ print $7 }' 2>/dev/null | awk -F . '{print $1}' )
+# Run either local readout unpacking or the uFEDKit unpacking
+if [ -n "$LOCALREADOUT" ]; then
+    #########################
+    ##### Local Readout #####
+    #########################
 
-    # Skip chunk files below initial number
-    if (( ${chunkNumber} < ${INITIALCHUNK} )); then
-        if [ -n "$DEBUG" ]; then
-            echo "skipping chunk ${chunkNumber}"
-        fi
-        continue
-    fi
+    # Loop over files found in FILEPATH
+    for file in ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.dat
+    do
+        # Determine this chunk number
+        chunkNumber=$(echo $file 2>/dev/null | awk -F _ '{ print $7 }' 2>/dev/null | awk -F . '{print $1}' )
 
-    # Skip chunk files above final number if provided
-    if (( ${FINALCHUNK} -gt -1 )); then
-        if (( ${chunkNumber} > ${FINALCHUNK} )); then
+        # Skip chunk files below initial number
+        if (( ${chunkNumber} < ${INITIALCHUNK} )); then
             if [ -n "$DEBUG" ]; then
                 echo "skipping chunk ${chunkNumber}"
             fi
             continue
         fi
-    fi
 
+        # Skip chunk files above final number if provided
+        if (( ${FINALCHUNK} > -1 )); then
+            if (( ${chunkNumber} > ${FINALCHUNK} )); then
+                if [ -n "$DEBUG" ]; then
+                    echo "skipping chunk ${chunkNumber}"
+                fi
+                continue
+            fi
+        fi
+
+        # Call unpacker
+        if [ -n "$DEBUG" ]; then
+            echo "unpacker ${file} ${UNPACKERHEADER}"
+        else
+            echo "unpacker ${file} ${UNPACKERHEADER}"
+            unpacker ${file} ${UNPACKERHEADER}
+        fi
+
+        thisRawFile="${file%".dat"}.raw.root"
+        FILELIST="${FILELIST} ${thisRawFile}"
+    done
+
+    echo "Finished unpacker loop, now adding raw files together"
+
+    # Add raw.root files together
+    FINALRAWFILE=$(ls ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.raw.root | grep "chunk_${INITIALCHUNK}.raw.root")
+    FINALRAWFILE="${FINALRAWFILE%"_chunk_${INITIALCHUNK}.raw.root"}.raw.root"
+else
+    #########################
+    ##### FEDKit Readout ####
+    #########################
+
+    FIRSTLUMISECSTR=""
+    for file in ${FILEPATH}/run${RUNSTRING}_ls*_index*.raw
+    do
+        # Determine this lumisection
+        lsNumberStr=$(echo $file 2>/dev/null | awk -F _ '{ print $2 }' 2>/dev/null | awk -F . '{print $1}' )
+        lsNumberStr=$(echo $lsNumberStr | cut -c 3-6) #Drops the leading 'ls' and returns only the number
+
+        # Transform into an integer
+        pythonCall="print(int('$lsNumberStr'))"
+        lsNumber=$(python -c "$pythonCall")
+
+        # Skip lumi section files below initial number
+        if (( ${lsNumber} < ${INITIALCHUNK} )); then
+            if [ -n "$DEBUG" ]; then
+                echo "lumi section ${lsNumber} less than initial requested lumi section ${INITIALCHUNK}; skipping"
+            fi
+            continue
+        fi
+
+        # Determine the first lumi section we actually process
+        if [ -n "FIRSTLUMISECSTR" ]; then
+            FIRSTLUMISECSTR=${lsNumberStr}
+        fi
+
+        # Skip chunk files above final number if provided
+        if (( ${FINALCHUNK} > -1 )); then
+            if (( ${lsNumber} > ${FINALCHUNK} )); then
+                if [ -n "$DEBUG" ]; then
+                    echo "lumi section ${lsNumber} greater than final requested lumi section ${FINALCHUNK}; skipping"
+                fi
+                continue
+            fi
+        fi
+
+        # Call unpacker
+        if [ -n "$DEBUG" ]; then
+            echo "unpacker ${file} ${UNPACKERHEADER}"
+        else
+            echo "unpacker ${file} ${UNPACKERHEADER}"
+            unpacker ${file} ${UNPACKERHEADER}
+        fi
+
+        thisRawFile="${file%".raw"}.raw.root"
+        FILELIST="${FILELIST} ${thisRawFile}"
+    done
+    echo "Finished unpacker loop, now adding raw files together"
+
+    # Add raw.root files together
+    FINALRAWFILE=$(ls ${FILEPATH}/run${RUNSTRING}_ls*.raw.root | grep "ls${FIRSTLUMISECSTR}" | grep "raw.root")
+    FINALRAWFILE=$(echo $FINALRAWFILE 2>/dev/null | awk -F / '{ print $4 }' | awk -F _ '{print $1"_allLumi_"$3}')
     if [ -n "$DEBUG" ]; then
-        echo "unpacker ${file} sdram"
-    else
-        echo "unpacker ${file} sdram"
-        unpacker ${file} sdram
+        echo "FINALRAWFILE ${FINALRAWFILE}"
     fi
-
-    thisRawFile="${file%".dat"}.raw.root"
-    FILELIST="${FILELIST} ${thisRawFile}"
-done
-
-echo "Finished unpacker loop, now adding raw files together"
-
-# Add raw.root files together
-FINALRAWFILE=$(ls ${FILEPATH}/run${RUNSTRING}_Cosmic_CERNQC8_*_chunk_*.raw.root | grep "chunk_${INITIALCHUNK}.raw.root")
-FINALRAWFILE="${FINALRAWFILE%"_chunk_${INITIALCHUNK}.raw.root"}.raw.root"
+fi
 
 if [ -n "$DEBUG" ]; then
     echo ""
